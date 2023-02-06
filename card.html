@@ -1,0 +1,75 @@
+<html lang="ru"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+
+  </style>
+  <title>tilda</title>
+</head>
+
+<body>
+  <div id="vue" class="afisha">
+    <div class="pay_card">
+      <div class="pay_card__wrapper">
+        <h1 class="pay_card__h1">Заполните данные карты</h1>
+        <div class="pay_card__grey">
+          Проведение платежей по банковским картам осуществляется
+          в строгом соответствии с требованиями платежных систем Visa и MasterCard
+        </div>
+        <div class="pay_card__row">
+          <div>Оплата заказа R801185 на {{ host }}</div>
+          <div class="pay_card__price">10650,0 RUB</div>
+        </div>
+        <form class="pay_card__form" id="make_cryptogram" autocomplete="off">
+          <div class="pay_card__input">
+            <label for="cardNumber">Номер карты</label>
+            <input data-cp="cardNumber" id="cardNumber" maxlength="16" type="text">
+          </div>
+          <div class="pay_card__input pay_card__input-date">
+            <label for="expDateMonth">Срок действия</label>
+            <input data-cp="expDateMonth" id="expDateMonth" maxlength="2" type="text">
+            <input data-cp="expDateYear" id="expDateYear" maxlength="2" type="text">
+          </div>
+          <div class="pay_card__input pay_card__input-name">
+            <label for="name">Владелец карты</label>
+            <input data-cp="name" id="card_holder_name" type="text">
+          </div>
+          <div class="pay_card__input pay_card__input-cvc">
+            <label for="cvv">CVV/CVC</label>
+            <input data-cp="cvv" id="cvv" maxlength="3" type="text">
+          </div>
+          <button type="button" id="checkout" class="pay_card__submit">Оплатить</button>
+          <div class="pay_card__type"></div>
+        </form>
+        <div class="pay_card__img"></div>
+        <article class="pay_card__article">
+          <h2 class="pay_card__h2">Безопасность платежа</h2>
+          <div class="pay_card__text">
+            Передача данных платежной карты производится с соблюдением всех
+            необходимых мер безопасности. Введенная информация не будет
+            предоставлена третьим лицам.
+            <br><br>
+            Проведение платежей по банковским картам осуществляется в строгом соответствии
+            с требованиями платежных систем Visa и MasterCard
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <script
+  src="https://code.jquery.com/jquery-2.2.4.js"
+  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" integrity="sha512-PwQ5+jgXxxprNGc80ycHE3spgj6TuDieHe/yTkbEJ+U5aol7dTupi/4VbwHHzlQVW77Vb0GLOIsiYigHgC5vcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js" integrity="sha512-wGKmIfDWUJSUvxUfUayQPJj7ADCD60La3up0VCbq+MTFcOUQ2hlH2McnYFafHgLTsOrGwOdiHKX4p1v0BerCyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/script.js"></script>
+
+  <script>
+
+  </script>
+</body>
+
+</html>

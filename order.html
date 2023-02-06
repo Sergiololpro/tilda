@@ -1,0 +1,130 @@
+<html lang="ru"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+
+  </style>
+  <title>tilda</title>
+</head>
+
+<body>
+  <section id="vue" class="order">
+    <iframe v-if="iframe" :src="iframe" class="iframe"></iframe>
+    <div v-else class="afisha__wrapper">
+      <div class="event_bread event_bread-seance">
+        <a href="/">Главная</a>
+        <span>&#8594;</span>
+        <span>Оформление заказа</span>
+      </div>
+      <template v-if="cart_summ">
+        <h1 class="order__h1">Оформление заказа</h1>
+        <div class="order__title">Ваши билеты:</div>
+        <div v-for="tickets in groupTickets" class="order_el__cart_wrp">
+            <div class="order_el__date">
+                <div class="order_el__number">{{ seanceDay(tickets[0].date) }}</div>
+                <div class="order_el__r">
+                    <div class="order_el__mounth">{{ seanceMonth(tickets[0].date) }}</div>
+                    <div class="order_el__day">{{ seanceWeek(tickets[0].date) }}</div>
+                </div>
+            </div>
+            <div class="order_el__els">
+                <div v-for="(ticket, index) in tickets" class="order_el__el">
+                    <div class="order_el__left">
+                        <div class="order_el__id">{{ index + 1 }}</div>
+                        <div class="order_el__time">
+                          {{ seanceHour2(ticket.date) }}
+                        </div>
+                        <div class="order_el__title">
+                          {{ ticket.title }}
+                        </div>
+                    </div>
+                    <div class="order_el__right">
+                        <div class="order_el__location">
+                            <span>{{ ticket.sector }}</span>
+                            <span v-if="ticket.is_multipled">Количество: {{ ticket.count }}</span>
+                            <span v-else>Ряд {{ ticket.row }}, Место {{ ticket.seat }}</span>
+                        </div>
+                        <div class="order_el__price">
+                          {{ ticket.price }} руб
+                        </div>
+                        <div class="order_el__delete" @click="delTicket(ticket.id)">&#128465;</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="order__total">Итого: {{ cart_summ }} руб</div>\
+        <form id="order_form" class="order__wp">
+          <div class="order__left">
+            <div class="order__title">Контактные данные</div>
+            <div class="order__input">
+              <label class="order__label" for="name">ФИО<span>*</span></label>
+              <input class="order__inp" id="name" name="name" placeholder="Иван Иванов" type="text" required="required">
+              <div class="order__alert">Проверьте правильность заполнения поля</div>
+            </div>
+            <div class="order__input">
+              <label class="order__label" for="phone">Телефон<span>*</span></label>
+              <input class="order__inp" id="phone" name="phone" placeholder="+7 (000)) 000-00-00" type="text" required="required">
+              <div class="order__alert">Проверьте правильность заполнения поля</div>
+            </div>
+            <div class="order__input">
+              <label class="order__label" for="email">Email<span>*</span></label>
+              <input class="order__inp" id="email" name="email" placeholder="test@email.com" type="text" required="required">
+              <div class="order__alert">Проверьте правильность заполнения поля</div>
+            </div>
+            <textarea class="order__textaea" name="comment" id="comment" placeholder="Комментарий"></textarea>
+            <div class="order__txt">Поля, отмеченные звездочками, обязательны для заполнения</div>
+          </div>
+          <div class="order__right">
+            <div class="order__title">Способы оплаты</div>
+            <div class="order_checkbox">
+              <input id="2" value="2" name="pay_type" type="radio" checked>
+              <label for="2">
+                  <span>Картой VISA / MASTERCARD</span>
+                  <span class="order_checkbox__txt">После оформления заказа, на ваш email придет ссылка на оплату билетов. По ссылке вы будете переведены на безопасную страницу банка для ввода данных карты. После успешной оплаты вы получаете чек, гарантирующий получение билетов.</span>
+              </label>
+            </div>
+          </div>
+          <div class="order__bottom">
+            <div class="order_checkbox">
+              <input id="agree" value="agree" name="agree" type="checkbox" checked>
+              <label for="agree">
+                  <span>Нажимая на кнопку «Оформить заказ», я даю согласие на обработку персональных данных и на условия оферты</span>
+              </label>
+            </div>
+            <div class="order__loading" :class="{ active: order_loading }">
+              <div class="afisha_loader_el afisha_loader_el-order"></div>
+              <div class="order__button" @click="makeOrder()">Оформить заказ</div>
+            </div>
+          </div>
+        </form>
+      </template>
+      <template v-else>
+        <h1 class="order__h1">Ваша корзина пуста</h1>
+      </template>
+    </div>
+    <div class="sold_modal" :class="{ active: sold_modal_staus }">
+      <div class="sold_modal__wrp">
+        <div class="sold_modal_close" @click="closeSoldModal()">&#215;</div>
+        <div class="sold_modal__title">Эти места недоступны</div>
+        <div v-if="sold_modal_tickets.length" class="sold_modal__list">
+          <div v-for="ticket in sold_modal_tickets">{{ ticket }}</div>
+        </div>
+        <div>
+          <div class="sold_modal__text">Пока вы выбирали, их занял кто-то еще</div>
+          <div class="sold_modal__text">Пожалуйста, выберите другие</div>
+        </div>
+        <a :href="sold_modal_link" class="sold_modal__button">Выбрать места</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" integrity="sha512-PwQ5+jgXxxprNGc80ycHE3spgj6TuDieHe/yTkbEJ+U5aol7dTupi/4VbwHHzlQVW77Vb0GLOIsiYigHgC5vcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js" integrity="sha512-wGKmIfDWUJSUvxUfUayQPJj7ADCD60La3up0VCbq+MTFcOUQ2hlH2McnYFafHgLTsOrGwOdiHKX4p1v0BerCyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script src="js/script.js"></script>
+</body>
+
+</html>

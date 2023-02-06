@@ -1,0 +1,129 @@
+<html lang="ru"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+
+  </style>
+  <title>tilda</title>
+</head>
+
+<body>
+  <section id="vue" class="event">
+    <div class="afisha__wrapper">
+      <div class="event_bread">
+        <a href="/">Главная</a>
+        <span>&#8594;</span>
+        <span>{{ event_data.title }}</span>
+      </div>
+      <div class="event_top">
+        <div class="event_top__content">
+          <div class="event_top__title">{{ event_data.title }}</div>
+          <div v-if="event_data.event_place" class="event_top__location">
+            {{ event_data.event_place.name }}
+            <template v-if="event_data.halls && event_data.halls[0]">
+              , {{ event_data.halls[0].name }}
+            </template>
+          </div>
+          <div v-if="event_data.short_description" class="event_top__text">
+            {{ event_data.short_description }}
+          </div>
+          <div
+            v-if="event_data.tech_info"
+            v-html="event_data.tech_info"
+            class="event_top__text"
+          ></div>
+          <div v-if="event_data.duration" class="event_top__text">
+            Продолжительность: {{ event_data.duration }}
+          </div>
+        </div>
+        <div class="event_top__image" :style="eventImage(event_data)"></div>
+      </div>
+      <div class="event__wrp">
+        <div class="event_seo">
+          <h1 v-if="event_data.h1" class="event__h1">
+            Билеты на {{ event_data.h1 }}
+          </h1>
+          <h1 v-else class="event__h1">
+            Билеты на {{ event_data.title }}
+          </h1>
+          <div
+            v-if="event_data.description"
+            v-html="event_data.description"
+            class="event_seo__text"
+          ></div>
+        </div>
+        <div class="event__seances">
+          <div v-for="(seances, day) in eventGroups"  class="afisha__date_wrp">
+            <div class="afisha__date">
+              <div
+                class="afisha__number"
+                :class="{ 'afisha__number-red': seanceD(seances[0].starts_at) == 0 || seanceD(seances[0].starts_at) == 6 }"
+              >
+                {{ seanceDay(seances[0].starts_at) }}
+              </div>
+              <div class="afisha__r">
+                <div class="afisha__mounth">{{ seanceMonth(seances[0].starts_at) }}</div>
+                <div class="afisha__day">{{ seanceWeek(seances[0].starts_at) }}</div>
+              </div>
+            </div>
+            <div class="afisha__els">
+              <div v-for="seance in seances" class="afisha__el">
+                <div class="afisha__time">{{ seanceHour2(seance.starts_at) }}</div>
+                <div class="afisha__center">
+                  <div class="afisha__left">
+                    <div class="afisha__bottom">
+                      <div v-if="event_data.event_place" class="afisha__location">
+                        {{ event_data.event_place.name }}
+                        <template v-if="event_data.halls && event_data.halls[0]">
+                          , {{ event_data.halls[0].name }}
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="afisha__right">
+                    <div v-if="seance.prices[0]" class="afisha__price">
+                      от <span class="afisha__price_pr">{{ seance.prices[0].min_price }}</span><span><span class="rur">руб</span></span>
+                    </div>
+                    <div v-else></div>
+                    <a v-if="seance.prices[0]" :href="`/seance#${event_data.id}&${seance.id}`" class="afisha__button">Выбрать билеты</a>
+                    <div v-else class="afisha__button afisha__button-stopped">Нет билетов</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="event_seo">
+          <div
+            v-if="event_data.long_description"
+            v-html="event_data.long_description"
+            class="event_seo__text"
+          ></div>
+          <div v-if="event_data.event_photos" class="event_photos">
+            <div
+              v-for="photo in event_data.event_photos"
+              :style="eventPhoto(photo)"
+              class="event_photos__photo"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-if="loading" class="afisha_loader">
+      <div class="afisha_loader_el"></div>
+    </div>
+  </section>
+
+  <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" integrity="sha512-PwQ5+jgXxxprNGc80ycHE3spgj6TuDieHe/yTkbEJ+U5aol7dTupi/4VbwHHzlQVW77Vb0GLOIsiYigHgC5vcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js" integrity="sha512-wGKmIfDWUJSUvxUfUayQPJj7ADCD60La3up0VCbq+MTFcOUQ2hlH2McnYFafHgLTsOrGwOdiHKX4p1v0BerCyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/script.js"></script>
+
+  <script>
+
+  </script>
+</body>
+
+</html>

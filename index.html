@@ -1,0 +1,105 @@
+<html lang="ru"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+
+  </style>
+  <title>tilda</title>
+</head>
+
+<body>
+  <div id="vue" class="afisha" data-slug="krokus_siti_holl">
+    <div class="afisha__wrapper afisha__wrapper-main">
+      <div v-if="months" class="afisha_filter__mounths">
+        <div
+          v-for="(month, id) in months"
+          class="afisha_filter__mounth"
+          :class="{ active: month == navMonth }"
+          @click="takeSeances(month)"
+        >
+          {{ filterMonth(month) }}
+          <div
+            class="afisha_filter__y"
+            :class="{ active: (months[id - 1] && filterYear(months[id - 1]) != filterYear(months[id])) || (months[id + 1] && filterYear(months[id + 1]) != filterYear(months[id]) ) }"
+          >
+            {{ filterYear(month) }}
+          </div>
+        </div>
+      </div>
+      <h2 class="afisha__h2">
+        Афиша <span v-if="activeMonth">на {{ filterMonth(navMonth) }} {{ filterYear(navMonth) }}</span>
+      </h2>
+      <div class="afisha__wrp">
+        <div v-for="(seances, day) in seancesGroups"  class="afisha__date_wrp">
+          <div class="afisha__date">
+            <div
+              class="afisha__number"
+              :class="{ 'afisha__number-red': seanceD(seances[0].date) == 0 || seanceD(seances[0].date) == 6 }"
+            >
+              {{ seanceDay(seances[0].date) }}
+            </div>
+            <div class="afisha__r">
+              <div class="afisha__mounth">{{ seanceMonth(seances[0].date) }}</div>
+              <div class="afisha__day">{{ seanceWeek(seances[0].date) }}</div>
+            </div>
+          </div>
+          <div class="afisha__els">
+            <div v-for="seance in seances" class="afisha__el">
+              <div class="afisha__time">{{ seanceHour(seance.date) }}</div>
+              <div class="afisha__location afisha__location-mob">{{ seance.event_place.name }}, {{ seance.event_place.hall_name }}</div>
+              <div class="afisha__img">
+                <a :href="`/event#${seance.event_id}`" class="afisha__img_wrp">
+                  <div class="afisha__img_img" :style="seanceImage(seance)"></div>
+                  <div class="afisha__title afisha__title-mob">
+                    {{ seance.title }}
+                    <div v-if="seance.short_description" class="afisha_short">
+                      {{ seance.short_description }}
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <div class="afisha__center">
+                <div class="afisha__left">
+                  <a :href="`/event#${seance.event_id}`" class="afisha__title">{{ seance.title }}</a>
+                  <div class="afisha__bottom">
+                    <div class="afisha__location">{{ seance.event_place.name }}, {{ seance.event_place.hall_name }}</div>
+                  </div>
+                </div>
+                <div class="afisha__right">
+                  <div v-if="seance.price" class="afisha__price">
+                    от <span class="afisha__price_pr">{{ seance.price }}</span><span><span class="rur">руб</span></span>
+                  </div>
+                  <div v-else></div>
+                  <a v-if="seance.price" :href="`/seance#${seance.event_id}&${seance.seance_id}`" class="afisha__button">Выбрать билеты</a>
+                  <div v-else class="afisha__button afisha__button-stopped">Нет билетов</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="loading" class="afisha_loader">
+          <div class="afisha_loader_el"></div>
+        </div>
+      </div>
+      <div v-if="nextMonth" class="afisha__load" @click="takeSeances(nextMonth, true)">
+        Показать афишу на {{ filterMonth(nextMonth) }} {{ filterYear(nextMonth) }}
+      </div>
+    </div>
+  </div>
+
+  <script
+  src="https://code.jquery.com/jquery-2.2.4.js"
+  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" integrity="sha512-PwQ5+jgXxxprNGc80ycHE3spgj6TuDieHe/yTkbEJ+U5aol7dTupi/4VbwHHzlQVW77Vb0GLOIsiYigHgC5vcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js" integrity="sha512-wGKmIfDWUJSUvxUfUayQPJj7ADCD60La3up0VCbq+MTFcOUQ2hlH2McnYFafHgLTsOrGwOdiHKX4p1v0BerCyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="js/script.js"></script>
+
+  <script>
+
+  </script>
+</body>
+
+</html>
