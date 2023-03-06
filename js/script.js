@@ -1,9 +1,12 @@
 var vue = new Vue({
     el: '#vue',
     data: {
-        slug: "lenkom",
-        host: "lencom.me",
-        api: "https://lencom.me/api/v1/",
+        // slug: "lenkom",
+        // host: "lencom.me",
+        // api: "https://lencom.me/api/v1/",
+        slug: "mhat_im_gorkogo",
+        host: "mxat-gorkogo.com",
+        api: "https://mxat-gorkogo.com/api/v1/",
         title_text: " | Ленком",
         loading: false,
         seances: [],
@@ -351,6 +354,7 @@ var vue = new Vue({
         },
         takeScheme() {
             var self = this;
+            console.log(self.hall_map)
 
             $.ajax({
                 url: self.hall_map,
@@ -447,7 +451,7 @@ var vue = new Vue({
                             'data-ss': ticket.ss,
                         });
                     }
-                } else if (ticket.sn && ticket.scid && ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-") {
+                } else if (ticket.sn && ticket.scid && ticket.r && +ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-") {
                     var place = $("#hall").find("#" + ticket.ss + " g:nth-child(" + ticket.r + ") path:nth-child(" + parseInt(ticket.s) + ")")[0],
                         seat_class = "act",
                         cicle = false,

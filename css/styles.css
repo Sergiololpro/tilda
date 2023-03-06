@@ -759,7 +759,6 @@ body #crocus .act[data-c="1"],
 #crocus .act {
     fill: #dd4b24 !important;
     stroke: #dd4b24 !important;
-    r: 10px;
     cursor: pointer;
     transition: r .3s;
 }
@@ -1335,6 +1334,10 @@ text[data-text].price__off {
     pointer-events: auto;
     opacity: 1;
     transition: fill .3s ease-out, stroke .3s ease-out;
+}
+
+#hall svg {
+    overflow: visible !important;
 }
 
 #hall path.act.sell {
