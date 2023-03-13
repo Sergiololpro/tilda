@@ -4,9 +4,9 @@ var vue = new Vue({
         // slug: "lenkom",
         // host: "lencom.me",
         // api: "https://lencom.me/api/v1/",
-        slug: "mhat_im_gorkogo",
-        host: "mxat-gorkogo.com",
-        api: "https://mxat-gorkogo.com/api/v1/",
+        slug: "kremlevskij_dvorets",
+        host: "gkd-palac.com",
+        api: "https://gkd-palac.com/api/v1/",
         title_text: " | Ленком",
         loading: false,
         seances: [],
@@ -451,7 +451,7 @@ var vue = new Vue({
                             'data-ss': ticket.ss,
                         });
                     }
-                } else if (ticket.sn && ticket.scid && ticket.r && +ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-") {
+                } else if (ticket.sn && ticket.scid && ticket.r && +ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-" && +ticket.s) {
                     var place = $("#hall").find("#" + ticket.ss + " g:nth-child(" + ticket.r + ") path:nth-child(" + parseInt(ticket.s) + ")")[0],
                         seat_class = "act",
                         cicle = false,
