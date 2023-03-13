@@ -82,7 +82,7 @@ var vue = new Vue({
                 }
             });
 
-            $("body").on("click", "path.act, circle.act", function(){
+            $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t)", function(){
                 var id = $(this).data("id"),
                     sector = $(this).data("sn"),
                     row = $(this).data("r"),
@@ -96,7 +96,7 @@ var vue = new Vue({
                 if ( index >= 0) {
                     slf.cart.splice(index, 1);
 
-                    $(this).removeClass("sell");
+                    $('[data-id="' + $(this).data("id") + '"]').removeClass("sell");
                 } else {
                     var cartItem = {
                         id: id,
@@ -114,7 +114,7 @@ var vue = new Vue({
 
                     slf.cart.push(cartItem);
 
-                    $(this).addClass("sell");
+                    $('[data-id="' + $(this).data("id") + '"]').addClass("sell");
                 }
 
                 localStorage.setItem("cart", JSON.stringify(slf.cart));
@@ -128,28 +128,39 @@ var vue = new Vue({
                 if ($(this).hasClass("active_sector")) {
                     slf.window_is_sector = true;
                     slf.window_sector = $(this).data("sn");
+
+                    this.classList.add('hovered');
                 } else {
                     slf.window_is_sector = false;
                     slf.window_sector = $(this).data("sn");
                     slf.window_row = $(this).data("r");
                     slf.window_seat = $(this).data("s");
                     slf.window_price = $(this).data("p");
-                }
 
-                this.classList.add('hovered');
+                    $('[data-id="' + $(this).data("id") + '"]').addClass("hovered");
+                }
+                
                 slf.tellPos(event);
                 
                 $(".seance_window").addClass("active");
             });
 
             $("body").on("mouseleave", "svg .act, svg .active_sector", function (event, triggered) {
-                this.classList.remove('hovered');
+                if ($(this).hasClass("active_sector")) {
+                    this.classList.remove('hovered');
+                } else {
+                    $('[data-id="' + $(this).data("id") + '"]').removeClass("hovered"); 
+                }
                 
                 $(".seance_window").removeClass("active");
             });
 
             $("body").on("click", ".active_sector", function(){
-                slf.m_sector = $(this).data("sector_slug");
+                if ($(this).data("sector_slug") !== undefined) {
+                    slf.m_sector = $(this).data("sector_slug");
+                } else {
+                    slf.m_sector = $(this).find("circle").data("ss");
+                }
             });
         }
 
@@ -432,7 +443,9 @@ var vue = new Vue({
             self.seance_data.tickets.forEach((ticket) => {  
                 if (ticket.ml) {
                     var m_ticket = ticket,
-                        index = self.cart.findIndex(obj => obj.id === m_ticket.id);
+                        index = self.cart.findIndex(obj => obj.id === m_ticket.id),
+                        seat_class = "act m_t",
+                        color = "color_1";
           
                     if (index > -1) {
                         m_ticket.count = self.cart[index].count;
@@ -442,7 +455,8 @@ var vue = new Vue({
 
                     self.m_tickets.push(ticket);
 
-                    var sector = $("#hall").find("#" + ticket.ss + " > *")[0];
+                    var sector = $("#hall").find("#" + ticket.ss + " > *")[0],
+                        sector_wrp = $("#hall").find("#" + ticket.ss)[0];
 
                     if (sector) {
                         self.setAttributes(sector, {
@@ -450,7 +464,50 @@ var vue = new Vue({
                             'data-sn': ticket.sn,
                             'data-ss': ticket.ss,
                         });
+
+                        var inner_els = sector_wrp.querySelectorAll('path, rect, polygon, polyline, circle');
+
+                        if (ticket.p > self.legend_range[4]) {
+                            color = "color_5";
+                        } else if (ticket.p > self.legend_range[3]) {
+                            color = "color_4";
+                        } else if (ticket.p > self.legend_range[2]) {
+                            color = "color_3";
+                        } else if (ticket.p > self.legend_range[1]) {
+                            color = "color_2";
+                        } else {
+                            color = "color_1"
+                        }
+
+                        if (self.cart.findIndex(obj => obj.id === ticket.id) >= 0) {
+                            seat_class += " sell";
+                        }
+
+                        self.setMultiplyAttributes(inner_els, {
+                            'class': seat_class,
+                            'data-p': ticket.p,
+                            'data-np': ticket.np,
+                            'data-pp': ticket.pp,
+                            'data-p_extra': ticket.p_extra,
+                            'data-c_extra': ticket.c_extra,
+                            'data-sn': ticket.sn,
+                            'data-ss': ticket.ss,
+                            'data-id': ticket.id,
+                            'data-pr': ticket.pr,
+                            'data-r': ticket.r,
+                            'data-s': ticket.s,
+                            'data-is_bintranet': ticket.is_bintranet,
+                            'data-is_official': ticket.is_official,
+                            'data-grid': ticket.grid,
+                            'data-fee': ticket.fee,
+                            'data-m': ticket.m,
+                            'data-pro': ticket.pro,
+                            'data-mid': ticket.mid,
+                            'data-is_rival': ticket.is_rival,
+                            'data-color': color
+                        });
                     }
+                    
                 } else if (ticket.sn && ticket.scid && ticket.r && +ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-" && +ticket.s) {
                     var place = $("#hall").find("#" + ticket.ss + " g:nth-child(" + ticket.r + ") path:nth-child(" + parseInt(ticket.s) + ")")[0],
                         seat_class = "act",
@@ -555,13 +612,19 @@ var vue = new Vue({
         },
 
         setAttributes(el, attrs) {
-            for(var key in attrs) {
+            for (var key in attrs) {
                 if (attrs[key]) el.setAttribute(key, attrs[key]);
-              }
+            }
+        },
+
+        setMultiplyAttributes(elements, attrs) {
+            elements.forEach((element) => {
+              this.setAttributes(element, attrs);
+            })
         },
 
         hoveredNumber(id, s, dc, cx, cy, tr, color) {
-            if ($("#hall[data-text='" + id + "']").length > 0)
+            if ($("#hall[data-text='" + id + "']").length > 0 || !s)
                 return;
             var $text = document.createElementNS('http://www.w3.org/2000/svg', 'text'),
                 s = s.toString(),
@@ -785,7 +848,8 @@ var vue = new Vue({
                 location = $(".seance").data("location"),
                 date = $(".date_data").data("date"),
                 index = self.cart.findIndex(obj => obj.id === id),
-                m_index = self.m_tickets.findIndex(obj => obj.id === id);
+                m_index = self.m_tickets.findIndex(obj => obj.id === id),
+                sell = true;
 
             if (index >= 0) {
                 var count = self.cart[index].count;
@@ -799,13 +863,14 @@ var vue = new Vue({
                         count = 0;
                         self.cart.splice(index, 1);
                         self.m_tickets[m_index].count = count;
+
+                        sell = false;
                     } else {
                         count -= 1;
                         self.cart[index].count = count;
                         self.m_tickets[m_index].count = count;
                     }
                 }
-
             } else {
                 var cartItem = {
                     id: id,
@@ -825,6 +890,14 @@ var vue = new Vue({
                 self.cart.push(cartItem);
 
                 self.m_tickets[m_index].count = 1;
+            }
+
+            if (sell) {
+                console.log(111)
+                $('[data-id="' + id + '"]').addClass("sell");
+            } else {
+                console.log(222)
+                $('[data-id="' + id + '"]').removeClass("sell");
             }
 
             localStorage.setItem("cart", JSON.stringify(self.cart));
