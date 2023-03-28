@@ -1787,6 +1787,7 @@ text[data-text].price__off {
     background: rgba(255, 255, 255, .75);
     opacity: 0;
     pointer-events: none;
+    z-index: 10;
     position: fixed;
     left: 0;
     right: 0;
