@@ -823,7 +823,7 @@ var vue = new Vue({
                                 VK.Goal('conversion');
                             }
                         } else {
-                            self.sold_modal_ids = response.message;
+                            self.sold_modal_ids = response.tikets_id;
 
                             self.sold_modal_ids.forEach((id) => { 
                                 self.cart.forEach((ticket) => { 
