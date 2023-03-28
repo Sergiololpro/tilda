@@ -1168,7 +1168,7 @@ text[data-text].price__off {
     border: 2px solid #1b1b1b;
     border-radius: 0;
     font-family: 'Arial';
-    font-size: 14px;
+    font-size: 16px;
     padding: 0 20px;
     transition: border .3s ease-out;
 }
@@ -2395,5 +2395,9 @@ text[data-text].price__off {
         right: inherit;
         left: 0;
         bottom: -80px;
+    }
+
+    .iframe {
+        height: 500px;
     }
 }

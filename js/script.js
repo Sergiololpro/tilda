@@ -4,9 +4,9 @@ var vue = new Vue({
         // slug: "lenkom",
         // host: "lencom.me",
         // api: "https://lencom.me/api/v1/",
-        slug: "kremlevskij_dvorets",
-        host: "gkd-palac.com",
-        api: "https://gkd-palac.com/api/v1/",
+        slug: "mht_im_a_p_chehova",
+        host: "mxat-theatre.com",
+        api: "https://mxat-theatre.com/api/v1/",
         title_text: " | Ленком",
         loading: false,
         seances: [],
@@ -113,6 +113,10 @@ var vue = new Vue({
                     };
 
                     slf.cart.push(cartItem);
+
+                    if (typeof VK !== 'undefined') {
+                        VK.Goal('add_to_cart');
+                    }
 
                     $('[data-id="' + $(this).data("id") + '"]').addClass("sell");
                 }
@@ -363,6 +367,7 @@ var vue = new Vue({
                 }
             });
         },
+
         takeScheme() {
             var self = this;
             console.log(self.hall_map)
@@ -376,6 +381,7 @@ var vue = new Vue({
                 }
             })
         },
+
         init_scheme() {
             var self = this,
                 window_width = ($(window).width() / 100) * 90,
@@ -435,6 +441,7 @@ var vue = new Vue({
                 }
             }, 100);
         },
+
         placeTickets() {
             var self = this;
             
@@ -811,6 +818,10 @@ var vue = new Vue({
                             $('html').animate({
                                 scrollTop: 0
                             }, 400);
+
+                            if (typeof VK !== 'undefined') {
+                                VK.Goal('conversion');
+                            }
                         } else {
                             self.sold_modal_ids = response.message;
 
@@ -888,6 +899,10 @@ var vue = new Vue({
                 };
 
                 self.cart.push(cartItem);
+
+                if (typeof VK !== 'undefined') {
+                    VK.Goal('add_to_cart');
+                }
 
                 self.m_tickets[m_index].count = 1;
             }
