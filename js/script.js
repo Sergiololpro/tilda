@@ -7,6 +7,7 @@ var vue = new Vue({
         slug: "mht_im_a_p_chehova",
         host: "mxat-theatre.com",
         api: "https://mxat-theatre.com/api/v1/",
+        yandex: 92990926,
         title_text: " | Ленком",
         loading: false,
         seances: [],
@@ -116,6 +117,10 @@ var vue = new Vue({
 
                     if (typeof VK !== 'undefined') {
                         VK.Goal('add_to_cart');
+                    }
+
+                    if (self.yandex && typeof ym !== 'undefined') {
+                        ym(self.yandex, 'reachGoal', 'add_to_card');
                     }
 
                     $('[data-id="' + $(this).data("id") + '"]').addClass("sell");
@@ -822,6 +827,10 @@ var vue = new Vue({
                             if (typeof VK !== 'undefined') {
                                 VK.Goal('conversion');
                             }
+
+                            if (self.yandex && typeof ym !== 'undefined') {
+                                ym(self.yandex, 'reachGoal', 'lead');
+                            }
                         } else {
                             self.sold_modal_ids = response.tikets_id;
 
@@ -902,6 +911,10 @@ var vue = new Vue({
 
                 if (typeof VK !== 'undefined') {
                     VK.Goal('add_to_cart');
+                }
+
+                if (self.yandex && typeof ym !== 'undefined') {
+                    ym(self.yandex, 'reachGoal', 'add_to_cart');
                 }
 
                 self.m_tickets[m_index].count = 1;
