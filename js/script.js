@@ -1,12 +1,12 @@
 var vue = new Vue({
     el: '#vue',
     data: {
-        // slug: "lenkom",
-        // host: "lencom.me",
-        // api: "https://lencom.me/api/v1/",
-        slug: "mht_im_a_p_chehova",
-        host: "mxat-theatre.com",
-        api: "https://mxat-theatre.com/api/v1/",
+        slug: "lenkom",
+        host: "lencom.me",
+        api: "https://lencom.me/api/v1/",
+        // slug: "mht_im_a_p_chehova",
+        // host: "mxat-theatre.com",
+        // api: "https://mxat-theatre.com/api/v1/",
         yandex: 92990926,
         title_text: " | Ленком",
         loading: false,

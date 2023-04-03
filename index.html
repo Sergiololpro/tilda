@@ -58,6 +58,31 @@
                       {{ seance.short_description }}
                     </div>
                   </div>
+                  <div v-if="seance.labels.length" class="afisha__labels">
+                      <template v-for="label in seance.labels" >
+                        <div v-if="label.slug == 'premiere'" class="afisha__label afisha__label-premiere">
+                            <span>Премьера</span>
+                        </div>
+                        <div v-if="label.slug == 'starry_cast'" class="afisha__label afisha__label-starry_cast">
+                          <span>Звездный состав</span>
+                        </div>
+                        <div v-if="label.slug == 'is_golden_mask'" class="afisha__label afisha__label-golden_mask">
+                            <span>Золотая маска</span>
+                        </div>
+                        <div v-if="label.slug == 'detjam'" class="afisha__label afisha__label-detjam">
+                            <span>Детям</span>
+                        </div>
+                        <div v-if="label.slug == 'festival'" class="afisha__label afisha__label-festival">
+                            <span>Фестиваль</span>
+                        </div>
+                        <div v-if="label.slug == 'is_popular'" class="afisha__label afisha__label-popular">
+                            <span>Популярное</span>
+                        </div>
+                        <div v-if="label.slug == 'is_discounted'" class="afisha__label afisha__label-discounted">
+                            <span>Скидки</span>
+                        </div>
+                      </template>
+                  </div>
                 </a>
               </div>
               <div class="afisha__center">
