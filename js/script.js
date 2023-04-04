@@ -1,12 +1,15 @@
 var vue = new Vue({
     el: '#vue',
     data: {
-        slug: "lenkom",
-        host: "lencom.me",
-        api: "https://lencom.me/api/v1/",
+        // slug: "lenkom",
+        // host: "lencom.me",
+        // api: "https://lencom.me/api/v1/",
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
+        slug: "krokus_siti_holl",
+        host: "crocus-holl.com",
+        api: "https://crocus-holl.com/api/v1/",
         yandex: 92990926,
         title_text: " | Ленком",
         loading: false,
@@ -137,6 +140,7 @@ var vue = new Vue({
                 if ($(this).hasClass("active_sector")) {
                     slf.window_is_sector = true;
                     slf.window_sector = $(this).data("sn");
+                    slf.window_price = $(this).data("p");
 
                     this.classList.add('hovered');
                 } else {
@@ -165,8 +169,8 @@ var vue = new Vue({
             });
 
             $("body").on("click", ".active_sector", function(){
-                if ($(this).data("sector_slug") !== undefined) {
-                    slf.m_sector = $(this).data("sector_slug");
+                if ($(this).data("ss") !== undefined) {
+                    slf.m_sector = $(this).data("ss");
                 } else {
                     slf.m_sector = $(this).find("circle").data("ss");
                 }
@@ -466,8 +470,8 @@ var vue = new Vue({
                     }
 
                     self.m_tickets.push(ticket);
-
-                    var sector = $("#hall").find("#" + ticket.ss + " > *")[0],
+                    // var sector = $("#hall").find("#" + ticket.ss + " > *")[0],
+                    var sector = $("#hall").find("#" + ticket.ss)[0],
                         sector_wrp = $("#hall").find("#" + ticket.ss)[0];
 
                     if (sector) {
@@ -475,6 +479,7 @@ var vue = new Vue({
                             'class': "active_sector",
                             'data-sn': ticket.sn,
                             'data-ss': ticket.ss,
+                            'data-p': ticket.p,
                         });
 
                         var inner_els = sector_wrp.querySelectorAll('path, rect, polygon, polyline, circle');

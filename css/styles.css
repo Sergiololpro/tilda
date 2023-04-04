@@ -1352,9 +1352,9 @@ text[data-text].price__off {
 }
 
 #hall .active_sector {
-    fill: #dd4b24;
-    stroke: #dd4b24;
-    pointer-events: all !important;
+    /* fill: #dd4b24;
+    stroke: #dd4b24; */
+    /* pointer-events: all !important; */
     opacity: 1;
     transition: opacity .3s ease-out;
 }
@@ -1369,10 +1369,12 @@ text[data-text].price__off {
 
 .m_tickets {
     width: 552px;
-    height: 234px;
     max-width: 100%;
+    min-height: 234px;
+    max-height: 300px;
     background: #fff;
     box-shadow: 0 25px 50px -5px rgb(0 0 0 / 25%);
+    overflow-y: auto;
     z-index: 1100;
     position: absolute;
     left: 0;
