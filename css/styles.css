@@ -2076,6 +2076,30 @@ text[data-text].price__off {
     display: block;  
 }
 
+.list_title {
+    display: flex;
+    padding: 0 10px;
+    margin: 0 0 20px;
+}
+
+.list_title__el {
+    font-size: 13px;
+    text-align: center;
+}
+
+.list_title__el:nth-child(1) {
+    width: 120px;
+    text-align: left;
+}
+
+.list_title__el:nth-child(2) {
+    width: 60px;
+}
+
+.list_title__el:nth-child(3) {
+    width: calc(100% - 240px);
+}
+
 @media (max-width: 1024px) {
     .afisha__date_wrp {
         flex-direction: column;

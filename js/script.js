@@ -979,12 +979,30 @@ var vue = new Vue({
             var self = this;
 
             self.seance_data.tickets.forEach((ticket) => {  
-                self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
-                self.list_tickets[ticket.ss][ticket.r] = self.list_tickets[ticket.ss][ticket.r] || [];
-                self.list_tickets[ticket.ss][ticket.r].push(ticket);
+                if (ticket.ml) {
+                    self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
+                    self.list_tickets[ticket.ss].push(ticket);
+
+                    self.list_tickets[ticket.ss]["ml"] = true;
+
+                    self.list_tickets[ticket.ss]["count"] = self.list_tickets[ticket.ss]["count"] + ticket.qty || ticket.qty;
+                } else {
+                    self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
+                    self.list_tickets[ticket.ss][ticket.r] = self.list_tickets[ticket.ss][ticket.r] || [];
+                    self.list_tickets[ticket.ss][ticket.r].push(ticket);
+                    
+                    self.list_tickets[ticket.ss]["count"] = self.list_tickets[ticket.ss]["count"] + 1 || 1;
+
+                    self.list_tickets[ticket.ss][ticket.r]["status"] = false;
+    
+                    if (!self.list_tickets[ticket.ss][ticket.r]["min_price"] || ticket.p < self.list_tickets[ticket.ss][ticket.r]["min_price"]) {
+                        self.list_tickets[ticket.ss][ticket.r]["min_price"] = ticket.p;
+                    }
+                }
+
+                self.list_tickets[ticket.ss]["title"] = ticket.sn;
 
                 self.list_tickets[ticket.ss]["status"] = false;
-                self.list_tickets[ticket.ss][ticket.r]["status"] = false;
 
                 if (!self.list_tickets[ticket.ss]["min_price"] || ticket.p < self.list_tickets[ticket.ss]["min_price"]) {
                     self.list_tickets[ticket.ss]["min_price"] = ticket.p;
@@ -993,13 +1011,19 @@ var vue = new Vue({
                 if (!self.list_tickets[ticket.ss]["max_price"] || ticket.p > self.list_tickets[ticket.ss]["max_price"]) {
                     self.list_tickets[ticket.ss]["max_price"] = ticket.p;
                 }
-
-                if (!self.list_tickets[ticket.ss][ticket.r]["min_price"] || ticket.p < self.list_tickets[ticket.ss][ticket.r]["min_price"]) {
-                    self.list_tickets[ticket.ss][ticket.r]["min_price"] = ticket.p;
-                }
             });
 
             console.log(self.list_tickets)
+
+            for (const property in self.list_tickets) {
+                for (const row in self.list_tickets[property]) {
+                    if (!self.list_tickets[property]["ml"] && typeof self.list_tickets[property][row] === 'object') {
+                        self.list_tickets[property][row].sort(function(a, b) {
+                            return a.p - b.p || a.s - b.s;
+                        });
+                    }
+                }
+            }
         },
         toggleSector(index) {
             this.list_tickets[index].status = !this.list_tickets[index].status;
