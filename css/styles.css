@@ -1930,6 +1930,152 @@ text[data-text].price__off {
     text-align: center;
 }
 
+.seance_switch {
+    display: flex;
+    margin: 10px 0 0;
+}
+
+.seance_switch__el {
+    border-bottom: 1px dashed transparent;
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-bottom .3s ease-out, color .3s ease-out;
+}
+
+.seance_switch__el.active,
+.seance_switch__el:hover {
+    border-bottom: 1px dashed #1b1b1b;
+    color: #1b1b1b;
+}
+
+.seance_switch__el:last-child {
+    margin: 0 0 0 20px;
+}
+
+.map_wrp {
+    display: none;
+}
+
+.map_wrp.active {
+    display: block;
+}
+
+.list {
+    width: 450px;
+    max-width: 100%;
+}
+
+.list__wrp {
+    border: 1px solid #acacac;
+    border-bottom: none;
+}
+
+.list__row {
+    min-height: 52px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid #acacac;
+    font-size: 13px;
+    line-height: 120%;
+    padding: 15px 20px 15px 10px;
+}
+
+.list__row-sector {
+    background: #f3f3f3;
+    border-left: 4px solid #939393;
+    padding: 15px 20px 15px 6px;
+}
+
+.list__col {
+    text-align: center;
+}
+
+.list__col-sector {
+    width: 120px;
+    border-bottom: none;
+    text-align: left;
+}
+
+.list__col-count {
+    width: 60px;
+}
+
+.list__col-price {
+    width: calc(100% - 240px);
+}
+
+.list__col-open {
+    width: 60px;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+}
+
+.list__col-open:before {
+    content: "▼";
+    font-size: 10px;
+    color: #acacac;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.list__col-open.active:before {
+    content: "▲";
+}
+
+.list__col-arrow {
+    width: 120px;
+    font-size: 24px;
+    color: #acacac;
+    text-align: left;
+}
+
+.list__input {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #1b1b1b;
+    cursor: pointer;
+    position: relative;
+}
+
+.list__input.active:before {
+    content: '✔';
+    font-size: 13px;
+    line-height: 20px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+.list__col-buy {
+    width: 60px;
+    display: flex;
+    justify-content: center;
+}
+
+.list__rows {
+    width: 100%;
+    display: none;
+}
+
+.list__rows.active {
+    display: block;  
+}
+
+.list__places {
+    width: 100%;
+    display: none;
+}
+
+.list__places.active {
+    display: block;  
+}
+
 @media (max-width: 1024px) {
     .afisha__date_wrp {
         flex-direction: column;

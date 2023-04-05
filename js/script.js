@@ -36,8 +36,10 @@ var vue = new Vue({
         window_row: "",
         window_seat: "",
         window_price: "",
+        map_view: "list",
         mobile_cart: true,
         order_loading: false,
+        list_tickets: {},
         m_tickets: [],
         m_sector: "",
         legend_range: [],
@@ -86,7 +88,7 @@ var vue = new Vue({
                 }
             });
 
-            $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t)", function(){
+            $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t), .list__input", function(){
                 var id = $(this).data("id"),
                     sector = $(this).data("sn"),
                     row = $(this).data("r"),
@@ -447,6 +449,7 @@ var vue = new Vue({
             setTimeout(function () {
                 if (self.seance_data.tickets) {
                     self.placeTickets();
+                    self.placeList();
                 }
             }, 100);
         },
@@ -971,6 +974,40 @@ var vue = new Vue({
         },
         closeSoldModal() {
             this.sold_modal_staus = false;
+        },
+        placeList() {
+            var self = this;
+
+            self.seance_data.tickets.forEach((ticket) => {  
+                self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
+                self.list_tickets[ticket.ss][ticket.r] = self.list_tickets[ticket.ss][ticket.r] || [];
+                self.list_tickets[ticket.ss][ticket.r].push(ticket);
+
+                self.list_tickets[ticket.ss]["status"] = false;
+                self.list_tickets[ticket.ss][ticket.r]["status"] = false;
+
+                if (!self.list_tickets[ticket.ss]["min_price"] || ticket.p < self.list_tickets[ticket.ss]["min_price"]) {
+                    self.list_tickets[ticket.ss]["min_price"] = ticket.p;
+                }
+
+                if (!self.list_tickets[ticket.ss]["max_price"] || ticket.p > self.list_tickets[ticket.ss]["max_price"]) {
+                    self.list_tickets[ticket.ss]["max_price"] = ticket.p;
+                }
+
+                if (!self.list_tickets[ticket.ss][ticket.r]["min_price"] || ticket.p < self.list_tickets[ticket.ss][ticket.r]["min_price"]) {
+                    self.list_tickets[ticket.ss][ticket.r]["min_price"] = ticket.p;
+                }
+            });
+
+            console.log(self.list_tickets)
+        },
+        toggleSector(index) {
+            this.list_tickets[index].status = !this.list_tickets[index].status;
+            this.$forceUpdate();
+        },
+        toggleRow(index, id) {
+            this.list_tickets[index][id].status = !this.list_tickets[index][id].status;
+            this.$forceUpdate();
         },
     }
 })
