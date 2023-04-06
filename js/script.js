@@ -822,30 +822,66 @@ var vue = new Vue({
                 self.order_loading = true;
 
                 if (self.tilda_widget_id) {
-                    var widget = new cp.CloudPayments();
-
-                    widget.pay('auth',
-                        {
-                            publicId: self.tilda_widget_id,
-                            description: self.host,
-                            amount: self.cart_summ,
-                            currency: 'RUB',
-                            invoiceId: '1234567',
+                    $.ajax({
+                        url: self.api + "payment_tilda/send/",
+                        method: "POST",
+                        data: {
+                            host_name: self.host,
+                            name: name,
+                            phone: phone,
                             email: email,
-                            payer: { 
-                                firstName: name,
-                                phone: phone,
-                            }
+                            comment: comment,
+                            pay_type: pay_type,
+                            tickets: self.cart,
                         },
-                        {
-                            onSuccess: function (options) {
+                        success: function(response) {
+                            console.log(response)
+                            
+                            if (response.success) {
+                                var widget = new cp.CloudPayments();
 
-                            },
-                            onFail: function (reason, options) {
-
+                                widget.pay('auth',
+                                    {
+                                        publicId: self.tilda_widget_id,
+                                        description: self.host,
+                                        amount: self.cart_summ,
+                                        currency: 'RUB',
+                                        invoiceId: '1234567',
+                                        email: email,
+                                        payer: { 
+                                            firstName: name,
+                                            phone: phone,
+                                        }
+                                    },
+                                    {
+                                        onSuccess: function (options) {
+            
+                                        },
+                                        onFail: function (reason, options) {
+            
+                                        }
+                                    }
+                                )
+    
+                                if (typeof VK !== 'undefined') {
+                                    VK.Goal('conversion');
+                                }
+    
+                                if (self.yandex && typeof ym !== 'undefined') {
+                                    ym(self.yandex, 'reachGoal', 'lead');
+                                }
+                            } else {
+                                self.sold_modal_ids = response.tikets_id;
+                                self.soldModalShow();
                             }
+    
+                            self.order_loading = false;
+    
+                            setTimeout(function () {
+                                self.clearCart();
+                            }, 1000);
                         }
-                    )
+                    });
                 } else {
                     $.ajax({
                         url: self.api + "payment_tilda/send/",
