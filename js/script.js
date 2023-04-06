@@ -15,6 +15,7 @@ var vue = new Vue({
         map_view: "scheme",
         info_text: "Приобрести детский билет можно только при покупке взрослого.",
         info_color: "#4db483",
+        tilda_widget_id: "",
 
         loading: false,
         seances: [],
@@ -820,60 +821,76 @@ var vue = new Vue({
             if (!error) {
                 self.order_loading = true;
 
-                $.ajax({
-                    url: self.api + "payment_tilda/send/",
-                    method: "POST",
-                    data: {
-                        host_name: self.host,
-                        name: name,
-                        phone: phone,
-                        email: email,
-                        comment: comment,
-                        pay_type: pay_type,
-                        tickets: self.cart,
-                    },
-                    success: function(response) {
-                        console.log(response)
-                        
-                        if (response.success) {
-                            // window.location.href = response.message
+                if (self.tilda_widget_id) {
+                    var widget = new cp.CloudPayments();
 
-                            self.iframe = response.message
-
-                            $('html').animate({
-                                scrollTop: 0
-                            }, 400);
-
-                            if (typeof VK !== 'undefined') {
-                                VK.Goal('conversion');
+                    widget.pay('auth',
+                        {
+                            publicId: self.tilda_widget_id,
+                            description: self.host,
+                            amount: self.cart_summ,
+                            currency: 'RUB',
+                            invoiceId: '1234567',
+                            email: email,
+                            payer: { 
+                                firstName: name,
+                                phone: phone,
                             }
+                        },
+                        {
+                            onSuccess: function (options) {
 
-                            if (self.yandex && typeof ym !== 'undefined') {
-                                ym(self.yandex, 'reachGoal', 'lead');
+                            },
+                            onFail: function (reason, options) {
+
                             }
-                        } else {
-                            self.sold_modal_ids = response.tikets_id;
-
-                            self.sold_modal_ids.forEach((id) => { 
-                                self.cart.forEach((ticket) => { 
-                                    if (id == ticket.id) {
-                                        self.sold_modal_tickets.push(ticket.sector + ", ряд " + ticket.row + ", место " + ticket.seat);
-
-                                        self.sold_modal_link = "/seance#" + ticket.event_id + "&" + ticket.seance_id;
-                                    }
-                                });
-                            });
-
-                            self.sold_modal_staus = true;
                         }
-
-                        self.order_loading = false;
-
-                        setTimeout(function () {
-                            self.clearCart();
-                        }, 1000);
-                    }
-                });
+                    )
+                } else {
+                    $.ajax({
+                        url: self.api + "payment_tilda/send/",
+                        method: "POST",
+                        data: {
+                            host_name: self.host,
+                            name: name,
+                            phone: phone,
+                            email: email,
+                            comment: comment,
+                            pay_type: pay_type,
+                            tickets: self.cart,
+                        },
+                        success: function(response) {
+                            console.log(response)
+                            
+                            if (response.success) {
+                                // window.location.href = response.message
+    
+                                self.iframe = response.message
+    
+                                $('html').animate({
+                                    scrollTop: 0
+                                }, 400);
+    
+                                if (typeof VK !== 'undefined') {
+                                    VK.Goal('conversion');
+                                }
+    
+                                if (self.yandex && typeof ym !== 'undefined') {
+                                    ym(self.yandex, 'reachGoal', 'lead');
+                                }
+                            } else {
+                                self.sold_modal_ids = response.tikets_id;
+                                self.soldModalShow();
+                            }
+    
+                            self.order_loading = false;
+    
+                            setTimeout(function () {
+                                self.clearCart();
+                            }, 1000);
+                        }
+                    });
+                }
             }
         },
         m_ticket(ticket, plus) {
@@ -1039,6 +1056,21 @@ var vue = new Vue({
 
             self.loading = false;
             self.list_loaded = true;
+        },
+        soldModalShow() {
+            var self = this;
+
+            self.sold_modal_ids.forEach((id) => { 
+                self.cart.forEach((ticket) => { 
+                    if (id == ticket.id) {
+                        self.sold_modal_tickets.push(ticket.sector + ", ряд " + ticket.row + ", место " + ticket.seat);
+
+                        self.sold_modal_link = "/seance#" + ticket.event_id + "&" + ticket.seance_id;
+                    }
+                });
+            });
+
+            self.sold_modal_staus = true;
         },
         toggleMapView(view) {
             this.map_view = view;
