@@ -11,6 +11,7 @@ var vue = new Vue({
         host: "crocus-holl.com",
         api: "https://crocus-holl.com/api/v1/",
         yandex: 92990926,
+        mail_ru: 3318007,
         title_text: " | Ленком",
         loading: false,
         seances: [],
@@ -124,6 +125,10 @@ var vue = new Vue({
 
                     if (self.yandex && typeof ym !== 'undefined') {
                         ym(self.yandex, 'reachGoal', 'add_to_card');
+                    }
+
+                    if (self.mail_ru && typeof _tmr !== 'undefined') {
+                        _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'add_to_card'});
                     }
 
                     $('[data-id="' + $(this).data("id") + '"]').addClass("sell");
@@ -836,6 +841,10 @@ var vue = new Vue({
                             if (self.yandex && typeof ym !== 'undefined') {
                                 ym(self.yandex, 'reachGoal', 'lead');
                             }
+
+                            if (self.mail_ru && typeof _tmr !== 'undefined') {
+                                _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
+                            }
                         } else {
                             self.sold_modal_ids = response.tikets_id;
 
@@ -920,6 +929,10 @@ var vue = new Vue({
 
                 if (self.yandex && typeof ym !== 'undefined') {
                     ym(self.yandex, 'reachGoal', 'add_to_cart');
+                }
+
+                if (self.mail_ru && typeof _tmr !== 'undefined') {
+                    _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'add_to_card'});
                 }
 
                 self.m_tickets[m_index].count = 1;
