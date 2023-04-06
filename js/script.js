@@ -12,6 +12,10 @@ var vue = new Vue({
         api: "https://crocus-holl.com/api/v1/",
         yandex: 92990926,
         title_text: " | Ленком",
+        map_view: "scheme",
+        info_text: "Приобрести детский билет можно только при покупке взрослого.",
+        info_color: "#4db483",
+
         loading: false,
         seances: [],
         months: [],
@@ -36,10 +40,13 @@ var vue = new Vue({
         window_row: "",
         window_seat: "",
         window_price: "",
-        map_view: "list",
         mobile_cart: true,
         order_loading: false,
         list_tickets: {},
+        list_map: "",
+        list_loaded: false,
+        scheme_loaded: false,
+        show_list_map: false,
         m_tickets: [],
         m_sector: "",
         legend_range: [],
@@ -370,10 +377,16 @@ var vue = new Vue({
 
                     if (self.seance_data.map_api_data.hall) {
                         self.hall_map = self.seance_data.map_api_data.hall.hall_map;
+                        self.list_map = self.seance_data.map_api_data.hall.extended_hall_map;
+                        console.log(self.list_map)
                     }
 
-                    if (self.hall_map) {
+                    if (self.map_view == "scheme" && self.hall_map) {
                         self.takeScheme();
+                    }
+
+                    if (self.map_view == "list") {
+                        self.placeList();
                     }
                 }
             });
@@ -381,7 +394,6 @@ var vue = new Vue({
 
         takeScheme() {
             var self = this;
-            console.log(self.hall_map)
 
             $.ajax({
                 url: self.hall_map,
@@ -444,12 +456,12 @@ var vue = new Vue({
                 $mapPane.css('will-change', 'unset');
             });
 
+            self.scheme_loaded = true;
             self.loading = false;
 
             setTimeout(function () {
                 if (self.seance_data.tickets) {
                     self.placeTickets();
-                    self.placeList();
                 }
             }, 100);
         },
@@ -1023,6 +1035,20 @@ var vue = new Vue({
                         });
                     }
                 }
+            }
+
+            self.loading = false;
+            self.list_loaded = true;
+        },
+        toggleMapView(view) {
+            this.map_view = view;
+
+            if (view == 'scheme' && !this.scheme_loaded) {
+                this.takeScheme();
+            }
+
+            if (view == 'list' && !this.list_loaded) {
+                this.placeList();
             }
         },
         toggleSector(index) {
