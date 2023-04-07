@@ -10,10 +10,13 @@ var vue = new Vue({
         slug: "krokus_siti_holl",
         host: "crocus-holl.com",
         api: "https://crocus-holl.com/api/v1/",
+        // slug: "radisson_royal",
+        // host: "radissontickets.com",
+        // api: "https://radissontickets.com/api/v1/",
         yandex: 92990926,
         title_text: " | Ленком",
         map_view: "scheme",
-        info_text: "Приобрести детский билет можно только при покупке взрослого.",
+        info_text: "",
         info_color: "#4db483",
         tilda_widget_id: "",
 
@@ -378,17 +381,19 @@ var vue = new Vue({
 
                     if (self.seance_data.map_api_data.hall) {
                         self.hall_map = self.seance_data.map_api_data.hall.hall_map;
-                        self.list_map = self.seance_data.map_api_data.hall.extended_hall_map;
-                        console.log(self.list_map)
+                        self.list_map = self.seance_data.map_api_data.hall.extended_hall_map || self.seance_data.map_api_data.hall.hall_map;
                     }
 
-                    if (self.map_view == "scheme" && self.hall_map) {
+
+                    if (self.seance_data.hallmaps_settings && self.seance_data.hallmaps_settings[0] && self.seance_data.hallmaps_settings[0][3]) {
+                        self.map_view = self.seance_data.hallmaps_settings[0][3];
+                    }
+
+                    if (self.hall_map) {
                         self.takeScheme();
                     }
 
-                    if (self.map_view == "list") {
-                        self.placeList();
-                    }
+                    self.placeList();
                 }
             });
         },
@@ -627,7 +632,7 @@ var vue = new Vue({
             var id = index + 1;
 
             if (!$(".legend__el.active").length) {
-                $("#hall .active, .map_place").addClass("price__off");
+                $("#hall .act, .map_place").addClass("price__off");
             }
 
             if ($(".legend__el:nth-child(" + id + ")").hasClass("active")) {
@@ -854,10 +859,10 @@ var vue = new Vue({
                                         }
                                     },
                                     {
-                                        onSuccess: function (options) {
-            
+                                        onSuccess: function () {
+                                            window.location.href = "order_success";
                                         },
-                                        onFail: function (reason, options) {
+                                        onFail: function () {
             
                                         }
                                     }
@@ -994,10 +999,8 @@ var vue = new Vue({
             }
 
             if (sell) {
-                console.log(111)
                 $('[data-id="' + id + '"]').addClass("sell");
             } else {
-                console.log(222)
                 $('[data-id="' + id + '"]').removeClass("sell");
             }
 
@@ -1110,14 +1113,6 @@ var vue = new Vue({
         },
         toggleMapView(view) {
             this.map_view = view;
-
-            if (view == 'scheme' && !this.scheme_loaded) {
-                this.takeScheme();
-            }
-
-            if (view == 'list' && !this.list_loaded) {
-                this.placeList();
-            }
         },
         toggleSector(index) {
             this.list_tickets[index].status = !this.list_tickets[index].status;

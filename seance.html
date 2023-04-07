@@ -257,11 +257,10 @@
               </div>
             </div>
           </div>
-          <div class="list_map__open" @click="show_list_map = true">Показать схему</div>
-          <div class="list_map" :class="{ active: show_list_map }">
+          <div v-if="list_map" class="list_map__open" @click="show_list_map = true">Показать схему</div>
+          <div v-if="list_map" class="list_map" :class="{ active: show_list_map }">
             <div class="list_map__close" @click="show_list_map = false">&#215;</div>
             <div
-              v-if="list_map"
               class="list_map__img"
               :style="`background-image: url(${list_map})`"
             ></div>

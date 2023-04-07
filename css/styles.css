@@ -764,36 +764,42 @@ body #crocus .act[data-c="1"],
     transition: r .3s;
 }
 
+.act[data-color="color_1"],
 body #crocus .act[data-c="1"][data-color="color_1"],
 #crocus .act[data-color="color_1"] {
     fill: #8D35B6 !important;
     stroke: #8D35B6 !important;
 }
 
+.act[data-color="color_2"],
 body #crocus .act[data-c="1"][data-color="color_2"],
 #crocus .act[data-color="color_2"] {
     fill: #3E5DCD !important;
     stroke: #3E5DCD !important;
 }
 
+.act[data-color="color_3"],
 body #crocus .act[data-c="1"][data-color="color_3"],
 #crocus .act[data-color="color_3"] {
     fill: #1EB2E0 !important;
     stroke: #1EB2E0 !important;
 }
 
+.act[data-color="color_4"],
 body #crocus .act[data-c="1"][data-color="color_4"],
 #crocus .act[data-color="color_4"] {
     fill: #F37732 !important;
     stroke: #F37732 !important;
 }
 
+.act[data-color="color_5"],
 body #crocus .act[data-c="1"][data-color="color_5"],
 #crocus .act[data-color="color_5"] {
     fill: #D3258E !important;
     stroke: #D3258E !important;
 }
 
+.act.price__off,
 body #crocus .act[data-c="1"].price__off,
 #crocus .act[data-color="color_5"].price__off {
     fill: #ccc !important;
@@ -1953,11 +1959,12 @@ text[data-text].price__off {
 }
 
 .map_wrp {
-    display: none;
+    height: 0;
+    overflow: hidden;
 }
 
 .map_wrp.active {
-    display: block;
+    height: auto;
 }
 
 .list {
