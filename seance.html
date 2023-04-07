@@ -90,107 +90,223 @@
                   </template>
                 </div>
             </div>
+            <div class="seance_switch">
+              <div
+                class="seance_switch__el"
+                :class="{ active: map_view == 'scheme' }"
+                @click="toggleMapView('scheme')"
+              >На схеме</div>
+              <div
+                class="seance_switch__el"
+                :class="{ active: map_view == 'list' }"
+                @click="toggleMapView('list')"
+              >Списком</div>
+            </div>
         </div>
       </div>
 
-      <div v-if="legend_range.length" class="legend">
-        <div v-for="(legend, index) in legend_range" class="legend__el" @click="legendToogle(index)">
-          <div class="legend__circle"></div>
-          {{ legend }} руб +
-        </div>
+      <div
+        v-if="info_text"
+        class="map_info"
+        :style="`background: ${info_color}`"
+      >
+        {{ info_text }}
       </div>
 
-      <div class="seance_map">
-        <div id="hall">
-
-        </div>
-        <div class="seance_window">
-          <div v-if="window_is_sector" class="seance_window_sector">
-            <div class="seance_window__sector">{{ window_sector }}</div>
-            <div class="seance_window__price">{{ window_price }} руб</div>
-          </div>
-          <div v-else class="seance_window_seat">
-            <div class="seance_window__sector">{{ window_sector }}</div>
-            <div class="seance_window__location">Ряд: {{ window_row }}, Место: {{ window_seat }}</div>
-            <div class="seance_window__price">{{ window_price }} руб</div>
+      <div class="map_wrp" :class="{ active: map_view == 'scheme' }">
+        <div v-if="legend_range.length" class="legend">
+          <div v-for="(legend, index) in legend_range" class="legend__el" @click="legendToogle(index)">
+            <div class="legend__circle"></div>
+            {{ legend }} руб +
           </div>
         </div>
-        <div
-          class="bottom_cart"
-          :class="{ active : cart_summ }"
-        >
-          <div class="afisha__wrapper afisha__wrapper-bottom_cart">
-            <div class="bottom_cart_mobile" :class="{ active: mobile_cart }">
-              <div class="bottom_cart_mobile__hide" @click="mobile_cart = !mobile_cart">
-                <template v-if="mobile_cart">
-                  Скрыть корзину &#x2304;
-                </template>
-                <template v-else>
-                  Показать корзину &#8963;
-                </template>
+        <div class="seance_map">
+          <div id="hall">
+  
+          </div>
+          <div class="seance_window">
+            <div v-if="window_is_sector" class="seance_window_sector">
+              <div class="seance_window__sector">{{ window_sector }}</div>
+              <div class="seance_window__price">{{ window_price }} руб</div>
+            </div>
+            <div v-else class="seance_window_seat">
+              <div class="seance_window__sector">{{ window_sector }}</div>
+              <div class="seance_window__location">Ряд: {{ window_row }}, Место: {{ window_seat }}</div>
+              <div class="seance_window__price">{{ window_price }} руб</div>
+            </div>
+          </div>
+          <div v-if="m_sector" class="m_tickets">
+            <div class="m_tickets__close" @click="m_sector = ''">&#215;</div>
+            <div class="m_tickets__title">
+              <template v-for="ticket in m_tickets">
+                <span v-if="ticket.ss == m_sector">{{ ticket.sn }}</span>
+              </template>
+            </div>
+            <div class="m_tickets__under">Выберите количество билетов</div>
+            <div class="m_tickets__top">
+              <div class="m_tickets__col">Количество</div>
+              <div class="m_tickets__col">По цене</div>
+              <div class="m_tickets__col">Вам нужно</div>
+            </div>
+            <div class="m_tickets__els">
+              <div v-for="ticket in m_tickets" class="m_tickets__el">
+                <div v-if="ticket.ss == m_sector" class="m_tickets__wrp">
+                  <div class="m_tickets__col">{{ ticket.qty }}</div>
+                  <div class="m_tickets__col">{{ ticket.p }} руб.</div>
+                  <div class="m_tickets__col">
+                    <div class="m_count">
+                      <div
+                        class="m_count_b m_count_b-m"
+                        :class="{ active: ticket.count > 0 }"
+                        @click="m_ticket(ticket, false)"
+                      >-</div>
+                      <div class="m_count_number">{{ ticket.count }}</div>
+                      <div
+                        class="m_count_b"
+                        :class="{ active: ticket.count < ticket.qty }"
+                        @click="m_ticket(ticket, true)"
+                      >+</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="bottom_cart_mobile__tickets">
-                <div v-for="ticket in cart" class="bottom_cart_mobile__ticket">
-                  <div class="bottom_cart_mobile__title">{{ ticket.title }}</div>
-                  <div class="bottom_cart_mobile__row">
-                    <div class="bottom_cart_mobile__left">
-                      {{ ticket.sector }},
-                      <template v-if="ticket.is_multipled">
-                        Количество: {{ ticket.count }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="map_wrp" :class="{ active: map_view == 'list' }">
+        <div class="list__wp">
+          <div class="list">
+            <div class="list_title">
+              <div class="list_title__el">Название</div>
+              <div class="list_title__el">Кол-во</div>
+              <div class="list_title__el">Цена</div>
+            </div>
+            <div class="list__wrp">
+              <div class="list__sector">
+                <template v-for="(sector, index) in list_tickets">
+                  <template>
+                    
+                    <div class="list__row list__row-sector">
+                      <div class="list__col list__col-sector">{{ sector.title }}</div>
+                      <div class="list__col list__col-count">{{ sector.count }}</div>
+                      <div class="list__col list__col-price">{{ sector.min_price }} - {{ sector.max_price }} руб</div>
+                      <div
+                        class="list__col list__col-open"
+                        :class="{ active: sector.status }"
+                        @click="toggleSector(index)"
+                      >Билеты</div>
+                    </div>
+                    <div class="list__rows" :class="{ active: sector.status }">
+                      <template v-if="sector.ml">
+                        <div v-for="m_row in sector" class="list__row list__row-seat">
+                          <div class="list__col list__col-arrow">↳</div>
+                          <div class="list__col list__col-count">{{ m_row.qty }}</div>
+                          <div class="list__col list__col-price">{{ m_row.p }} руб</div>
+                          <div class="list__col list__col-buy">
+                            <div class="m_count">
+                              <div
+                                class="m_count_b m_count_b-m"
+                                :class="{ active: m_row.count > 0 }"
+                                @click="m_ticket(m_row, false)"
+                              >-</div>
+                              <div class="m_count_number m_count_number-list">{{ m_row.count }}</div>
+                              <div
+                                class="m_count_b"
+                                :class="{ active: m_row.count < m_row.qty }"
+                                @click="m_ticket(m_row, true)"
+                              >+</div>
+                            </div>
+                          </div>
+                        </div>
                       </template>
                       <template v-else>
-                        Ряд: {{ ticket.row }}, Место: {{ ticket.seat }}
+                        <template v-for="(row, id) in sector">
+                          <template v-if="row && row.length">
+                            <div class="list__row list__row-row">
+                              <div class="list__col list__col-sector">Ряд {{ row[0].r }}</div>
+                              <div class="list__col list__col-count">{{ row.length }}</div>
+                              <div class="list__col list__col-price">от {{ row.min_price }} руб</div>
+                              <div class="list__col list__col-open" @click="toggleRow(index, id)">Места</div>
+                            </div>
+                            <div class="list__places" :class="{ active: row.status }">
+                              <div v-for="place in row" class="list__row list__row-seat">
+                                <div class="list__col list__col-arrow">↳</div>
+                                <div class="list__col list__col-count">Место {{ place.s }}</div>
+                                <div class="list__col list__col-price">{{ place.p }} руб</div>
+                                <div class="list__col list__col-buy">
+                                  <div
+                                    class="list__input"
+                                    :class="{ active: cart.findIndex(obj => obj.id === place.id) >= 0 }"
+                                    :data-id="place.id"
+                                    :data-sn="place.sn"
+                                    :data-r="place.r"
+                                    :data-s="place.s"
+                                    :data-p="place.p"
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                        </template>
                       </template>
                     </div>
-                    <div class="bottom_cart_mobile__price">{{ ticket.price }} руб</div>
-                  </div>
-                  <div class="bottom_cart_mobile__del" @click="delTicket(ticket.id)">&#215;</div>
-                </div>
+                  </template>
+                </template>
               </div>
             </div>
-            <div class="bottom_cart__clear" @click="clearCart()">Очистить корзину &#215;</div>
-            <div class="bottom_cart__center">Итого: {{ cart_summ }} руб</div>
-            <a href="/order/" class="bottom_cart__button">Оформить заказ</a>
           </div>
-        </div>
-        <div v-if="m_sector" class="m_tickets">
-          <div class="m_tickets__close" @click="m_sector = ''">&#215;</div>
-          <div class="m_tickets__title">
-            <template v-for="ticket in m_tickets">
-              <span v-if="ticket.ss == m_sector">{{ ticket.sn }}</span>
-            </template>
-          </div>
-          <div class="m_tickets__under">Выберите количество билетов</div>
-          <div class="m_tickets__top">
-            <div class="m_tickets__col">Количество</div>
-            <div class="m_tickets__col">По цене</div>
-            <div class="m_tickets__col">Вам нужно</div>
-          </div>
-          <div class="m_tickets__els">
-            <div v-for="ticket in m_tickets" class="m_tickets__el">
-              <div v-if="ticket.ss == m_sector" class="m_tickets__wrp">
-                <div class="m_tickets__col">{{ ticket.qty }}</div>
-                <div class="m_tickets__col">{{ ticket.p }} руб.</div>
-                <div class="m_tickets__col">
-                  <div class="m_count">
-                    <div
-                      class="m_count_b m_count_b-m"
-                      :class="{ active: ticket.count > 0 }"
-                      @click="m_ticket(ticket, false)"
-                    >-</div>
-                    <div class="m_count_number">{{ ticket.count }}</div>
-                    <div
-                      class="m_count_b"
-                      :class="{ active: ticket.count < ticket.qty }"
-                      @click="m_ticket(ticket, true)"
-                    >+</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div v-if="list_map" class="list_map__open" @click="show_list_map = true">Показать схему</div>
+          <div v-if="list_map" class="list_map" :class="{ active: show_list_map }">
+            <div class="list_map__close" @click="show_list_map = false">&#215;</div>
+            <div
+              class="list_map__img"
+              :style="`background-image: url(${list_map})`"
+            ></div>
           </div>
         </div>
       </div>
+
+      <div
+      class="bottom_cart"
+      :class="{ active : cart_summ }"
+    >
+      <div class="afisha__wrapper afisha__wrapper-bottom_cart">
+        <div class="bottom_cart_mobile" :class="{ active: mobile_cart }">
+          <div class="bottom_cart_mobile__hide" @click="mobile_cart = !mobile_cart">
+            <template v-if="mobile_cart">
+              Скрыть корзину &#x2304;
+            </template>
+            <template v-else>
+              Показать корзину &#8963;
+            </template>
+          </div>
+          <div class="bottom_cart_mobile__tickets">
+            <div v-for="ticket in cart" class="bottom_cart_mobile__ticket">
+              <div class="bottom_cart_mobile__title">{{ ticket.title }}</div>
+              <div class="bottom_cart_mobile__row">
+                <div class="bottom_cart_mobile__left">
+                  {{ ticket.sector }},
+                  <template v-if="ticket.is_multipled">
+                    Количество: {{ ticket.count }}
+                  </template>
+                  <template v-else>
+                    Ряд: {{ ticket.row }}, Место: {{ ticket.seat }}
+                  </template>
+                </div>
+                <div class="bottom_cart_mobile__price">{{ ticket.price }} руб</div>
+              </div>
+              <div class="bottom_cart_mobile__del" @click="delTicket(ticket.id)">&#215;</div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom_cart__clear" @click="clearCart()">Очистить корзину &#215;</div>
+        <div class="bottom_cart__center">Итого: {{ cart_summ }} руб</div>
+        <a href="/order/" class="bottom_cart__button">Оформить заказ</a>
+      </div>
+    </div>
+
     </div>
 
     <div v-if="loading" class="afisha_loader">

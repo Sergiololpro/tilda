@@ -7,12 +7,20 @@ var vue = new Vue({
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
-        slug: "krokus_siti_holl",
-        host: "crocus-holl.com",
-        api: "https://crocus-holl.com/api/v1/",
+        // slug: "krokus_siti_holl",
+        // host: "crocus-holl.com",
+        // api: "https://crocus-holl.com/api/v1/",
+        slug: "radisson_royal",
+        host: "radissontickets.com",
+        api: "https://radissontickets.com/api/v1/",
         yandex: 92990926,
         mail_ru: 3318007,
         title_text: " | Ленком",
+        map_view: "scheme",
+        info_text: "",
+        info_color: "#4db483",
+        tilda_widget_id: "",
+
         loading: false,
         seances: [],
         months: [],
@@ -39,6 +47,11 @@ var vue = new Vue({
         window_price: "",
         mobile_cart: true,
         order_loading: false,
+        list_tickets: {},
+        list_map: "",
+        list_loaded: false,
+        scheme_loaded: false,
+        show_list_map: false,
         m_tickets: [],
         m_sector: "",
         legend_range: [],
@@ -87,7 +100,7 @@ var vue = new Vue({
                 }
             });
 
-            $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t)", function(){
+            $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t), .list__input", function(){
                 var id = $(this).data("id"),
                     sector = $(this).data("sn"),
                     row = $(this).data("r"),
@@ -373,18 +386,25 @@ var vue = new Vue({
 
                     if (self.seance_data.map_api_data.hall) {
                         self.hall_map = self.seance_data.map_api_data.hall.hall_map;
+                        self.list_map = self.seance_data.map_api_data.hall.extended_hall_map || self.seance_data.map_api_data.hall.hall_map;
+                    }
+
+
+                    if (self.seance_data.hallmaps_settings && self.seance_data.hallmaps_settings[0] && self.seance_data.hallmaps_settings[0][3]) {
+                        self.map_view = self.seance_data.hallmaps_settings[0][3];
                     }
 
                     if (self.hall_map) {
                         self.takeScheme();
                     }
+
+                    self.placeList();
                 }
             });
         },
 
         takeScheme() {
             var self = this;
-            console.log(self.hall_map)
 
             $.ajax({
                 url: self.hall_map,
@@ -447,6 +467,7 @@ var vue = new Vue({
                 $mapPane.css('will-change', 'unset');
             });
 
+            self.scheme_loaded = true;
             self.loading = false;
 
             setTimeout(function () {
@@ -616,7 +637,7 @@ var vue = new Vue({
             var id = index + 1;
 
             if (!$(".legend__el.active").length) {
-                $("#hall .active, .map_place").addClass("price__off");
+                $("#hall .act, .map_place").addClass("price__off");
             }
 
             if ($(".legend__el:nth-child(" + id + ")").hasClass("active")) {
@@ -810,64 +831,118 @@ var vue = new Vue({
             if (!error) {
                 self.order_loading = true;
 
-                $.ajax({
-                    url: self.api + "payment_tilda/send/",
-                    method: "POST",
-                    data: {
-                        host_name: self.host,
-                        name: name,
-                        phone: phone,
-                        email: email,
-                        comment: comment,
-                        pay_type: pay_type,
-                        tickets: self.cart,
-                    },
-                    success: function(response) {
-                        console.log(response)
-                        
-                        if (response.success) {
-                            // window.location.href = response.message
+                if (self.tilda_widget_id) {
+                    $.ajax({
+                        url: self.api + "payment_tilda/send/",
+                        method: "POST",
+                        data: {
+                            host_name: self.host,
+                            name: name,
+                            phone: phone,
+                            email: email,
+                            comment: comment,
+                            pay_type: pay_type,
+                            tickets: self.cart,
+                        },
+                        success: function(response) {
+                            console.log(response)
+                            
+                            if (response.success) {
+                                var widget = new cp.CloudPayments();
 
-                            self.iframe = response.message
-
-                            $('html').animate({
-                                scrollTop: 0
-                            }, 400);
-
-                            if (typeof VK !== 'undefined') {
-                                VK.Goal('conversion');
-                            }
-
-                            if (self.yandex && typeof ym !== 'undefined') {
-                                ym(self.yandex, 'reachGoal', 'lead');
-                            }
-
-                            if (self.mail_ru && typeof _tmr !== 'undefined') {
-                                _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
-                            }
-                        } else {
-                            self.sold_modal_ids = response.tikets_id;
-
-                            self.sold_modal_ids.forEach((id) => { 
-                                self.cart.forEach((ticket) => { 
-                                    if (id == ticket.id) {
-                                        self.sold_modal_tickets.push(ticket.sector + ", ряд " + ticket.row + ", место " + ticket.seat);
-
-                                        self.sold_modal_link = "/seance#" + ticket.event_id + "&" + ticket.seance_id;
+                                widget.pay('auth',
+                                    {
+                                        publicId: self.tilda_widget_id,
+                                        description: self.host,
+                                        amount: self.cart_summ,
+                                        currency: 'RUB',
+                                        invoiceId: '1234567',
+                                        email: email,
+                                        payer: { 
+                                            firstName: name,
+                                            phone: phone,
+                                        }
+                                    },
+                                    {
+                                        onSuccess: function () {
+                                            window.location.href = "order_success";
+                                        },
+                                        onFail: function () {
+            
+                                        }
                                     }
-                                });
-                            });
+                                )
+    
+                                if (typeof VK !== 'undefined') {
+                                    VK.Goal('conversion');
+                                }
+    
+                                if (self.yandex && typeof ym !== 'undefined') {
+                                    ym(self.yandex, 'reachGoal', 'lead');
+                                }
 
-                            self.sold_modal_staus = true;
+                                if (self.mail_ru && typeof _tmr !== 'undefined') {
+                                    _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
+                                }
+                            } else {
+                                self.sold_modal_ids = response.tikets_id;
+                                self.soldModalShow();
+                            }
+    
+                            self.order_loading = false;
+    
+                            setTimeout(function () {
+                                self.clearCart();
+                            }, 1000);
                         }
-
-                        self.order_loading = false;
-
-                        setTimeout(function () {
-                            self.clearCart();
-                        }, 1000);
-                    }
-                });
+                    });
+                } else {
+                    $.ajax({
+                        url: self.api + "payment_tilda/send/",
+                        method: "POST",
+                        data: {
+                            host_name: self.host,
+                            name: name,
+                            phone: phone,
+                            email: email,
+                            comment: comment,
+                            pay_type: pay_type,
+                            tickets: self.cart,
+                        },
+                        success: function(response) {
+                            console.log(response)
+                            
+                            if (response.success) {
+                                // window.location.href = response.message
+    
+                                self.iframe = response.message
+    
+                                $('html').animate({
+                                    scrollTop: 0
+                                }, 400);
+    
+                                if (typeof VK !== 'undefined') {
+                                    VK.Goal('conversion');
+                                }
+    
+                                if (self.yandex && typeof ym !== 'undefined') {
+                                    ym(self.yandex, 'reachGoal', 'lead');
+                                }
+    
+                                if (self.mail_ru && typeof _tmr !== 'undefined') {
+                                    _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
+                                }
+                            } else {
+                                self.sold_modal_ids = response.tikets_id;
+                                self.soldModalShow();
+                            }
+    
+                            setTimeout(function () {
+                                self.clearCart();
+                            }, 1000);
+                        }
+                    });
+                }
             }
         },
         m_ticket(ticket, plus) {
@@ -939,10 +1014,8 @@ var vue = new Vue({
             }
 
             if (sell) {
-                console.log(111)
                 $('[data-id="' + id + '"]').addClass("sell");
             } else {
-                console.log(222)
                 $('[data-id="' + id + '"]').removeClass("sell");
             }
 
@@ -984,6 +1057,85 @@ var vue = new Vue({
         },
         closeSoldModal() {
             this.sold_modal_staus = false;
+        },
+        placeList() {
+            var self = this;
+
+            self.seance_data.tickets.forEach((ticket) => {  
+                if (ticket.ml) {
+                    self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
+                    self.list_tickets[ticket.ss].push(ticket);
+
+                    self.list_tickets[ticket.ss]["ml"] = true;
+
+                    self.list_tickets[ticket.ss]["count"] = self.list_tickets[ticket.ss]["count"] + ticket.qty || ticket.qty;
+                } else {
+                    self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
+                    self.list_tickets[ticket.ss][ticket.r] = self.list_tickets[ticket.ss][ticket.r] || [];
+                    self.list_tickets[ticket.ss][ticket.r].push(ticket);
+                    
+                    self.list_tickets[ticket.ss]["count"] = self.list_tickets[ticket.ss]["count"] + 1 || 1;
+
+                    self.list_tickets[ticket.ss][ticket.r]["status"] = false;
+    
+                    if (!self.list_tickets[ticket.ss][ticket.r]["min_price"] || ticket.p < self.list_tickets[ticket.ss][ticket.r]["min_price"]) {
+                        self.list_tickets[ticket.ss][ticket.r]["min_price"] = ticket.p;
+                    }
+                }
+
+                self.list_tickets[ticket.ss]["title"] = ticket.sn;
+
+                self.list_tickets[ticket.ss]["status"] = false;
+
+                if (!self.list_tickets[ticket.ss]["min_price"] || ticket.p < self.list_tickets[ticket.ss]["min_price"]) {
+                    self.list_tickets[ticket.ss]["min_price"] = ticket.p;
+                }
+
+                if (!self.list_tickets[ticket.ss]["max_price"] || ticket.p > self.list_tickets[ticket.ss]["max_price"]) {
+                    self.list_tickets[ticket.ss]["max_price"] = ticket.p;
+                }
+            });
+
+            console.log(self.list_tickets)
+
+            for (const property in self.list_tickets) {
+                for (const row in self.list_tickets[property]) {
+                    if (!self.list_tickets[property]["ml"] && typeof self.list_tickets[property][row] === 'object') {
+                        self.list_tickets[property][row].sort(function(a, b) {
+                            return a.p - b.p || a.s - b.s;
+                        });
+                    }
+                }
+            }
+
+            self.loading = false;
+            self.list_loaded = true;
+        },
+        soldModalShow() {
+            var self = this;
+
+            self.sold_modal_ids.forEach((id) => { 
+                self.cart.forEach((ticket) => { 
+                    if (id == ticket.id) {
+                        self.sold_modal_tickets.push(ticket.sector + ", ряд " + ticket.row + ", место " + ticket.seat);
+
+                        self.sold_modal_link = "/seance#" + ticket.event_id + "&" + ticket.seance_id;
+                    }
+                });
+            });
+
+            self.sold_modal_staus = true;
+        },
+        toggleMapView(view) {
+            this.map_view = view;
+        },
+        toggleSector(index) {
+            this.list_tickets[index].status = !this.list_tickets[index].status;
+            this.$forceUpdate();
+        },
+        toggleRow(index, id) {
+            this.list_tickets[index][id].status = !this.list_tickets[index][id].status;
+            this.$forceUpdate();
         },
     }
 })
