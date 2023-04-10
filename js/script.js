@@ -400,6 +400,8 @@ var vue = new Vue({
                         if (self.seance_data.tickets) {
                             self.placeTickets();
                         }
+
+                        self.map_view = "list";
                     }
 
                     self.placeList();
@@ -484,7 +486,9 @@ var vue = new Vue({
         placeTickets() {
             var self = this;
             
-            self.makeLegend();
+            if (self.hall_map) {
+                self.makeLegend();
+            }
 
             self.seance_data.tickets.forEach((ticket) => {  
                 if (ticket.ml) {
