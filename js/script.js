@@ -396,6 +396,10 @@ var vue = new Vue({
 
                     if (self.hall_map) {
                         self.takeScheme();
+                    } else {
+                        if (self.seance_data.tickets) {
+                            self.placeTickets();
+                        }
                     }
 
                     self.placeList();
