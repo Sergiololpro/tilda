@@ -7,12 +7,12 @@ var vue = new Vue({
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
-        // slug: "krokus_siti_holl",
-        // host: "crocus-holl.com",
-        // api: "https://crocus-holl.com/api/v1/",
-        slug: "radisson_royal",
-        host: "radissontickets.com",
-        api: "https://radissontickets.com/api/v1/",
+        slug: "krokus_siti_holl",
+        host: "crocus-holl.com",
+        api: "https://crocus-holl.com/api/v1/",
+        // slug: "radisson_royal",
+        // host: "radissontickets.com",
+        // api: "https://radissontickets.com/api/v1/",
         yandex: 92990926,
         mail_ru: 3318007,
         title_text: " | Ленком",
@@ -20,6 +20,7 @@ var vue = new Vue({
         info_text: "",
         info_color: "#4db483",
         tilda_widget_id: "",
+        show_map_switch: true,
 
         loading: false,
         seances: [],
@@ -402,6 +403,7 @@ var vue = new Vue({
                         }
 
                         self.map_view = "list";
+                        self.show_map_switch = false;
                     }
 
                     self.placeList();

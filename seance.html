@@ -90,7 +90,7 @@
                   </template>
                 </div>
             </div>
-            <div class="seance_switch">
+            <div v-if="show_map_switch" class="seance_switch">
               <div
                 class="seance_switch__el"
                 :class="{ active: map_view == 'scheme' }"
