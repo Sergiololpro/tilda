@@ -42,11 +42,13 @@
       </div>
       <div class="event__wrp">
         <div class="event_seo">
-          <h1 v-if="event_data.h1" class="event__h1">
-            Билеты на {{ event_data.h1 }}
-          </h1>
-          <h1 v-else class="event__h1">
-            Билеты на {{ event_data.title }}
+          <h1 class="event__h1">
+            <template v-if="event_data.h1">
+              Билеты на {{ event_data.h1 }}
+            </template>
+            <template v-else>
+              Билеты на {{ event_data.title }}
+            </template>
           </h1>
           <div
             v-if="event_data.description"
