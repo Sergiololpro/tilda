@@ -58,8 +58,6 @@ let vue = new Vue({
         order_loading: false,
         list_tickets: {},
         list_map: "",
-        list_loaded: false,
-        scheme_loaded: false,
         show_list_map: false,
         m_tickets: [],
         m_sector: "",
@@ -323,6 +321,8 @@ let vue = new Vue({
 
                 const content = await response.data;
 
+                console.log(content);
+
                 self.cache_requests.set(row, content);
             }
 
@@ -357,99 +357,88 @@ let vue = new Vue({
             }
         },
 
-        takeEvent(month, append) {
+        async takeEvent(month, append) {
             const self = this;
 
             self.loading = true;
 
-            $.ajax({
-                url: self.api + "event_tilda/",
-                method: "GET",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                data: {
+            const response = await axios.get(`${self.api}event_tilda/`, {
+                params: {
                     host_name: self.host,
-                    event_id: self.event_id,
-                },
-                success: function(response) {
-                    console.log(response)
-
-                    self.event_data = response;
-                    self.loading = false;
-
-                    document.title = "Купить билеты на " + self.event_data.title + self.title_text;
+                    event_id: self.event_id
                 }
             });
+
+            self.event_data = await response.data;
+
+            console.log(self.event_data);
+
+            self.loading = false;
+
+            document.title = "Купить билеты на " + self.event_data.title + self.title_text;
         },
 
-        takeSeance() {
+        async takeSeance() {
             const self = this;
 
             self.loading = true;
 
-            $.ajax({
-                url: self.api + "event_scheme_tilda/",
-                method: "GET",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                data: {
+            const response = await axios.get(`${self.api}event_scheme_tilda/`, {
+                params: {
                     host_name: self.host,
                     event_id: self.seance_event_id,
                     seance_id:  self.seance_seance_id,
-                },
-                success: function(response) {
-                    console.log(response)
-
-                    self.seance_data = response;
-
-                    document.title = "Купить билеты на " + self.seance_data.map_api_data.name + " - " + self.seance_data.hall_name + self.title_text;
-
-                    if (self.seance_data.map_api_data.hall) {
-                        self.hall_map = self.seance_data.map_api_data.hall.hall_map;
-                        self.list_map = self.seance_data.map_api_data.hall.extended_hall_map || self.seance_data.map_api_data.hall.hall_map;
-                    }
-
-
-                    if (self.seance_data.hallmaps_settings && self.seance_data.hallmaps_settings[0] && self.seance_data.hallmaps_settings[0][3]) {
-                        self.map_view = self.seance_data.hallmaps_settings[0][3];
-                    }
-
-                    if (self.hall_map) {
-                        self.takeScheme();
-                    } else {
-                        if (self.seance_data.tickets) {
-                            self.placeTickets();
-                        }
-
-                        self.map_view = "list";
-                        self.show_map_switch = false;
-                    }
-
-                    self.placeList();
                 }
             });
+
+            self.seance_data  = await response.data;
+
+            console.log(self.seance_data);
+
+            document.title = "Купить билеты на " + self.seance_data.map_api_data.name + " - " + self.seance_data.hall_name + self.title_text;
+
+            if (self.seance_data.map_api_data.hall) {
+                self.hall_map = self.seance_data.map_api_data.hall.hall_map;
+                self.list_map = self.seance_data.map_api_data.hall.extended_hall_map || self.seance_data.map_api_data.hall.hall_map;
+            }
+
+
+            if (self.seance_data.hallmaps_settings && self.seance_data.hallmaps_settings[0] && self.seance_data.hallmaps_settings[0][3]) {
+                self.map_view = self.seance_data.hallmaps_settings[0][3];
+            }
+
+            if (self.hall_map) {
+                self.takeScheme();
+            } else {
+                if (self.seance_data.tickets) {
+                    self.placeTickets();
+                }
+
+                self.map_view = "list";
+                self.show_map_switch = false;
+            }
+
+            self.placeList();
         },
 
-        takeScheme() {
+        async takeScheme() {
             const self = this;
 
-            $.ajax({
-                url: self.hall_map,
-                method: "GET",
-                success: function(response) {
-                    $("#hall").html(response.querySelector('svg'));
-                    self.init_scheme();
-                }
-            })
+            const response = await axios.get(self.hall_map);
+
+            const content = await response.data;
+
+            $("#hall").html(content);
+            self.init_scheme();
         },
 
-        async init_scheme() {
+        init_scheme() {
             const self = this,
                 window_width = ($(window).width() / 100) * 90,
                 $scheme = document.querySelector('#hall > svg'),
                 viewBox = $scheme.getAttribute('viewBox').split(' ');
   
-            window.map = await L.map('hall', {
+            window.map = L.map('hall', {
                 crs: L.CRS.Simple,
                 zoom: 1,
                 minZoom: 0,
@@ -493,9 +482,6 @@ let vue = new Vue({
                 $svg.css('will-change', 'unset');
                 $mapPane.css('will-change', 'unset');
             });
-
-            self.scheme_loaded = true;
-            self.loading = false;
 
             if (self.seance_data.tickets) {
                 self.placeTickets();
@@ -643,6 +629,8 @@ let vue = new Vue({
                     }
                 }
             });
+
+            self.loading = false;
         },
 
         makeLegend() {
@@ -863,84 +851,84 @@ let vue = new Vue({
 
                 const payment_link = self.tilda_widget_id ? "payment_info" : "payment_tilda";
 
-                $.ajax({
-                    url: self.api + payment_link + "/send/",
-                    method: "POST",
-                    data: {
-                        host_name: self.host,
-                        name: name,
-                        phone: phone,
-                        email: email,
-                        comment: comment,
-                        pay_type: pay_type,
-                        tickets: self.cart,
-                    },
-                    success: function(response) {
-                        console.log(response)
-                        
-                        if (response.success) {
-                            if (self.tilda_widget_id) {
-                                let widget = new cp.CloudPayments();
+                axios.post(`${self.api}${payment_link}/send/`, {
+                    host_name: self.host,
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    comment: comment,
+                    pay_type: pay_type,
+                    tickets: self.cart,
+                },{
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                      }
+                }).then((response) => {
+                    const resp = response.data;
 
-                                widget.pay('auth',
-                                    {
-                                        publicId: self.tilda_widget_id,
-                                        description: self.tilda_widget_deescription,
-                                        amount: self.cart_summ,
-                                        currency: 'RUB',
-                                        invoiceId: response.order_id,
-                                        email: email,
-                                        payer: { 
-                                            firstName: name,
-                                            phone: phone,
-                                        }
-                                    },
-                                    {
-                                        onSuccess: function () {
-                                            setTimeout(function () {
-                                                self.clearCart();
+                    console.log(resp)
+                    
+                    if (resp.success) {
+                        if (self.tilda_widget_id) {
+                            let widget = new cp.CloudPayments();
 
-                                                window.location.href = "/order_success";
-                                            }, 1000);
-                                        },
-                                        onFail: function () {
-            
-                                        }
+                            widget.pay('auth',
+                                {
+                                    publicId: self.tilda_widget_id,
+                                    description: self.tilda_widget_deescription,
+                                    amount: self.cart_summ,
+                                    currency: 'RUB',
+                                    invoiceId: resp.order_id,
+                                    email: email,
+                                    payer: { 
+                                        firstName: name,
+                                        phone: phone,
                                     }
-                                )
-                            } else {
-                               // window.location.href = response.message
-    
-                               self.iframe = response.message
+                                },
+                                {
+                                    onSuccess: function () {
+                                        setTimeout(function () {
+                                            self.clearCart();
 
-                               self.clearCart();
-    
-                               $('html').animate({
-                                   scrollTop: 0
-                               }, 400);
-                            }
-
-                            if (typeof VK !== 'undefined') {
-                                VK.Goal('conversion');
-                            }
-
-                            if (self.yandex && typeof ym !== 'undefined') {
-                                ym(self.yandex, 'reachGoal', 'lead');
-                            }
-
-                            if (self.mail_ru && typeof _tmr !== 'undefined') {
-                                _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
-                            }
+                                            window.location.href = "/order_success";
+                                        }, 1000);
+                                    },
+                                    onFail: function () {
+        
+                                    }
+                                }
+                            )
                         } else {
-                            self.clearCart();
-                            self.sold_modal_ids = response.tikets_id;
-                            self.soldModalShow();
+                           // window.location.href = response.message
 
-                            self.clearCart();
+                           self.iframe = resp.message
+
+                           self.clearCart();
+
+                           $('html').animate({
+                               scrollTop: 0
+                           }, 400);
                         }
 
-                        self.order_loading = false;
+                        if (typeof VK !== 'undefined') {
+                            VK.Goal('conversion');
+                        }
+
+                        if (self.yandex && typeof ym !== 'undefined') {
+                            ym(self.yandex, 'reachGoal', 'lead');
+                        }
+
+                        if (self.mail_ru && typeof _tmr !== 'undefined') {
+                            _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
+                        }
+                    } else {
+                        self.sold_modal_ids = resp.tikets_id;
+                        self.soldModalShow();
+
+                        self.clearCart();
                     }
+
+                    self.order_loading = false;
                 });
             }
         },
@@ -1022,37 +1010,35 @@ let vue = new Vue({
 
             self.touchCart();
         },
-        takeText() {
+        async takeText() {
             const self = this;
 
-            $.ajax({
-                url: self.api + "page_tilda/",
-                method: "GET",
-                data: {
+            const response = await axios.get(`${self.api}page_tilda/`, {
+                params: {
                     host_name: self.host,
                     page_slug: self.text_page
-                },
-                success: function(response) {
-                    console.log(response)
-                    self.page_content = response[0];
-
-                    if (self.text_page == "about") {
-                        self.page_text = self.page_content.about_text;
-                    } else if (self.text_page == "guarantee") {
-                        self.page_text = self.page_content.guarantee_text;
-                    } else if (self.text_page == "delivery") {
-                        self.page_text = self.page_content.delivery_text;
-                    } else if (self.text_page == "offer") {
-                        self.page_text = self.page_content.offer_text;
-                    } else if (self.text_page == "payment") {
-                        self.page_text = self.page_content.payment_text;
-                    } else if (self.text_page == "confidential") {
-                        self.page_text = self.page_content.text;
-                    } else if (self.text_page == "contact") {
-                        self.page_text = self.page_content.contact_text;
-                    }
                 }
-            })
+            });
+
+            self.page_content = await response.data[0];
+
+            console.log(self.page_content)
+
+            if (self.text_page == "about") {
+                self.page_text = self.page_content.about_text;
+            } else if (self.text_page == "guarantee") {
+                self.page_text = self.page_content.guarantee_text;
+            } else if (self.text_page == "delivery") {
+                self.page_text = self.page_content.delivery_text;
+            } else if (self.text_page == "offer") {
+                self.page_text = self.page_content.offer_text;
+            } else if (self.text_page == "payment") {
+                self.page_text = self.page_content.payment_text;
+            } else if (self.text_page == "confidential") {
+                self.page_text = self.page_content.text;
+            } else if (self.text_page == "contact") {
+                self.page_text = self.page_content.contact_text;
+            }
         },
         closeSoldModal() {
             this.sold_modal_staus = false;
@@ -1106,9 +1092,6 @@ let vue = new Vue({
                     }
                 }
             }
-
-            self.loading = false;
-            self.list_loaded = true;
         },
         soldModalShow() {
             const self = this;
