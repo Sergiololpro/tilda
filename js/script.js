@@ -7,19 +7,19 @@ let vue = new Vue({
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
-        slug: "krokus_siti_holl",
-        host: "crocus-holl.com",
-        api: "https://crocus-holl.com/api/v1/",
+        // slug: "krokus_siti_holl",
+        // host: "crocus-holl.com",
+        // api: "https://crocus-holl.com/api/v1/",
         // slug: "radisson_royal",
         // host: "radissontickets.com",
         // api: "https://radissontickets.com/api/v1/",
         // slug: "moskovskij_planetarij",
         // host: "planetariym.com",
         // api: "https://planetariym.com/api/v1/",
-        // slug: "besprintsypnye-chtenija",
-        // slug_event: "besprintsypnye-chtenija",
-        // host: "dev.doorway.sys-tix.com",
-        // api: "https://dev.doorway.sys-tix.com/api/v1/",
+        slug: "besprintsypnye-chtenija",
+        slug_event: "besprintsypnye-chtenija",
+        host: "dev.doorway.sys-tix.com",
+        api: "https://dev.doorway.sys-tix.com/api/v1/",
         yandex: 92990926,
         mail_ru: 3318007,
         title_text: " | Ленком",
@@ -331,18 +331,23 @@ let vue = new Vue({
         async takeSeances(month, append) {
             const self = this;
 
+            let data = {
+                host_name: self.host
+            };
+
             self.loading = true;
 
             if (month) {
                 self.activeMonth = self.navMonth = month;
                 self.nextMonth = self.months[self.months.indexOf(month) + 1];
+                data.month = self.activeMonth; 
             }
 
-            const data = {
-                host_name: self.host,
-                place_slug: self.slug,
-                month: self.activeMonth
-            };
+            if (self.slug_event) {
+                data.slug_event = self.slug_event;
+            } else {
+                data.place_slug = self.slug; 
+            }
 
             const response = await self.takeinfoFromCache(self.api + "events_tilda/", data);
 
@@ -1120,4 +1125,4 @@ let vue = new Vue({
             this.$forceUpdate();
         },
     }
-})
+});
