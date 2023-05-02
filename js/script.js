@@ -314,7 +314,7 @@ let vue = new Vue({
     methods:{
         async takeinfoFromCache(url, data) {
             const self = this,
-                row = (new URLSearchParams(data)).toString();
+                row = JSON.stringify(data);
 
             if (!self.cache_requests.has(row)) {
                 const response = await axios.get(url, {
