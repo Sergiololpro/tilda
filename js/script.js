@@ -1,4 +1,4 @@
-var vue = new Vue({
+let vue = new Vue({
     el: '#vue',
     data: {
         // slug: "lenkom",
@@ -13,13 +13,21 @@ var vue = new Vue({
         // slug: "radisson_royal",
         // host: "radissontickets.com",
         // api: "https://radissontickets.com/api/v1/",
+        // slug: "moskovskij_planetarij",
+        // host: "planetariym.com",
+        // api: "https://planetariym.com/api/v1/",
+        // slug: "besprintsypnye-chtenija",
+        // slug_event: "besprintsypnye-chtenija",
+        // host: "dev.doorway.sys-tix.com",
+        // api: "https://dev.doorway.sys-tix.com/api/v1/",
         yandex: 92990926,
         mail_ru: 3318007,
         title_text: " | Ленком",
         map_view: "scheme",
         info_text: "",
         info_color: "#4db483",
-        tilda_widget_id: "",
+        // tilda_widget_id: "pk_e40712c97f8fbd9f2c223a2c20b51",
+        tilda_widget_deescription: "Описание к оплате",
         show_map_switch: true,
 
         loading: false,
@@ -64,6 +72,7 @@ var vue = new Vue({
         sold_modal_link: "/",
         sold_modal_ids: [],
         sold_modal_tickets: [],
+        cache_requests: new Map(),
     },
     mounted: function() {
         this.touchCart();
@@ -77,12 +86,12 @@ var vue = new Vue({
         }
 
         if ($(".seance").length) {
-            var slf = this;
+            const slf = this;
 
             this.takeSeance();
 
             $("body").on("mouseenter", "path.act, circle.act", function(event){
-                var self = event.target;
+                const self = event.target;
             
                 if ($(this).data("seat") != -1) {
                     slf.hoveredNumber(
@@ -102,7 +111,7 @@ var vue = new Vue({
             });
 
             $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t), .list__input", function(){
-                var id = $(this).data("id"),
+                let id = $(this).data("id"),
                     sector = $(this).data("sn"),
                     row = $(this).data("r"),
                     seat = $(this).data("s"),
@@ -117,7 +126,7 @@ var vue = new Vue({
 
                     $('[data-id="' + $(this).data("id") + '"]').removeClass("sell");
                 } else {
-                    var cartItem = {
+                    let cartItem = {
                         id: id,
                         sector: sector,
                         row: row,
@@ -225,7 +234,7 @@ var vue = new Vue({
             }
         },
         seanceMonth: function() {
-            var self = this;
+            const self = this;
 
             return function(date) {
                 return self.staticMonthsDat[new Date(date).getMonth()];
@@ -237,14 +246,14 @@ var vue = new Vue({
             }
         },
         seanceWeek: function() {
-            var self = this;
+            const self = this;
 
             return function(date) {
                 return self.week[new Date(date).getDay()];
             }
         },
         seanceWeekShort: function() {
-            var self = this;
+            const self = this;
 
             return function(date) {
                 return self.week_short[new Date(date).getDay()];
@@ -267,7 +276,7 @@ var vue = new Vue({
         },
         eventImage: function() {
             return function(event) {
-                var row = event.preview_header ? event.preview_header : event.image;
+                const row = event.preview_header ? event.preview_header : event.image;
                 return "background-image: url(https://" + this.host + row + ");";
             }
         },
@@ -277,7 +286,7 @@ var vue = new Vue({
             }
         },
         filterMonth: function() {
-            var self = this;
+            const self = this;
 
             return function(month) {
                 return self.staticMonths[parseInt(month.split("-")[1]) - 1];
@@ -289,7 +298,7 @@ var vue = new Vue({
             }
         },
         groupTickets: function() {
-            var self = this;
+            const self = this;
             
             return Object.values(self.cart).reduce(function(rv, x) {
                 (rv[x["seance_id"]] = rv[x["seance_id"]] || []).push(x);
@@ -297,14 +306,31 @@ var vue = new Vue({
               }, {});
         },
         textPageTitle: function() {
-            var self = this;
+            const self = this;
             
             return self.page_content.seo_title ? self.page_content.seo_title : self.page_content.banner_title
         },
     },
     methods:{
-        takeSeances(month, append) {
-            var self = this;
+        async takeinfoFromCache(url, data) {
+            const self = this;
+
+            if (!self.cache_requests.has(data.month)) {
+                const response = await $.ajax({
+                    url: url,
+                    method: "GET",
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    data: data
+                });
+
+                self.cache_requests.set(data.month, response);
+            }
+
+            return self.cache_requests.get(data.month);  
+        },
+        async takeSeances(month, append) {
+            const self = this;
 
             self.loading = true;
 
@@ -313,33 +339,27 @@ var vue = new Vue({
                 self.nextMonth = self.months[self.months.indexOf(month) + 1];
             }
 
-            $.ajax({
-                url: self.api + "events_tilda/",
-                method: "GET",
-                contentType: 'application/json; charset=utf-8',
-                dataType: 'json',
-                data: {
-                    host_name: self.host,
-                    place_slug: self.slug,
-                    month: self.activeMonth
-                },
-                success: function(response) {
-                    console.log(response)
-                    self.seances = append ? self.seances.concat(response.results) : response.results;
-                    self.loading = false;
+            const data = {
+                host_name: self.host,
+                place_slug: self.slug,
+                month: self.activeMonth
+            };
 
-                    if (!self.months.length) {
-                        self.months = response.months;
-                        self.activeMonth = response.months[response.months.length - 1];
-                        self.nextMonth = self.months[self.months.indexOf(self.activeMonth) + 1];
-                        self.navMonth = response.months[0];
-                    }
-                }
-            });
+            const response = await self.takeinfoFromCache(self.api + "events_tilda/", data);
+
+            self.seances = append ? self.seances.concat(response.results) : response.results;
+            self.loading = false;
+
+            if (!self.months.length) {
+                self.months = response.months;
+                self.activeMonth = response.months[response.months.length - 1];
+                self.nextMonth = self.months[self.months.indexOf(self.activeMonth) + 1];
+                self.navMonth = response.months[0];
+            }
         },
 
         takeEvent(month, append) {
-            var self = this;
+            const self = this;
 
             self.loading = true;
 
@@ -364,7 +384,7 @@ var vue = new Vue({
         },
 
         takeSeance() {
-            var self = this;
+            const self = this;
 
             self.loading = true;
 
@@ -412,7 +432,7 @@ var vue = new Vue({
         },
 
         takeScheme() {
-            var self = this;
+            const self = this;
 
             $.ajax({
                 url: self.hall_map,
@@ -424,13 +444,13 @@ var vue = new Vue({
             })
         },
 
-        init_scheme() {
-            var self = this,
+        async init_scheme() {
+            const self = this,
                 window_width = ($(window).width() / 100) * 90,
                 $scheme = document.querySelector('#hall > svg'),
                 viewBox = $scheme.getAttribute('viewBox').split(' ');
   
-            window.map = L.map('hall', {
+            window.map = await L.map('hall', {
                 crs: L.CRS.Simple,
                 zoom: 1,
                 minZoom: 0,
@@ -438,7 +458,7 @@ var vue = new Vue({
                 scrollWheelZoom: false,
             });
   
-            var instant_width = parseInt(viewBox[2], 10),
+            let instant_width = parseInt(viewBox[2], 10),
                 instant_height = parseInt(viewBox[3], 10),
                 scale = window.innerWidth * .9 / instant_width;
 
@@ -446,7 +466,7 @@ var vue = new Vue({
                 scale = window.innerWidth * .9  / instant_height
             }
   
-            var width = (window.innerWidth * .8 ),
+            let width = (window.innerWidth * .8 ),
                 height = (window.innerHeight - 300);
   
             $('#hall').css('height', height + 100 + 'px');
@@ -464,7 +484,7 @@ var vue = new Vue({
             map.fitBounds([[0, 0], [(height + 50), (width)]]);
             map.setMaxBounds([[0, 0], [(height + 50), (width)]]);
   
-            var $svg = $('.leaflet-overlay-pane').find('svg'),
+            const $svg = $('.leaflet-overlay-pane').find('svg'),
                 $mapPane = $('.leaflet-map-pane');
   
             $('#hall').on('mousedown', function (e) {
@@ -478,15 +498,13 @@ var vue = new Vue({
             self.scheme_loaded = true;
             self.loading = false;
 
-            setTimeout(function () {
-                if (self.seance_data.tickets) {
-                    self.placeTickets();
-                }
-            }, 100);
+            if (self.seance_data.tickets) {
+                self.placeTickets();
+            }
         },
 
         placeTickets() {
-            var self = this;
+            const self = this;
             
             if (self.hall_map) {
                 self.makeLegend();
@@ -494,7 +512,7 @@ var vue = new Vue({
 
             self.seance_data.tickets.forEach((ticket) => {  
                 if (ticket.ml) {
-                    var m_ticket = ticket,
+                    let m_ticket = ticket,
                         index = self.cart.findIndex(obj => obj.id === m_ticket.id),
                         seat_class = "act m_t",
                         color = "color_1";
@@ -506,8 +524,8 @@ var vue = new Vue({
                     }
 
                     self.m_tickets.push(ticket);
-                    // var sector = $("#hall").find("#" + ticket.ss + " > *")[0],
-                    var sector = $("#hall").find("#" + ticket.ss)[0],
+                    // let sector = $("#hall").find("#" + ticket.ss + " > *")[0],
+                    let sector = $("#hall").find("#" + ticket.ss)[0],
                         sector_wrp = $("#hall").find("#" + ticket.ss)[0];
 
                     if (sector) {
@@ -518,7 +536,7 @@ var vue = new Vue({
                             'data-p': ticket.p,
                         });
 
-                        var inner_els = sector_wrp.querySelectorAll('path, rect, polygon, polyline, circle');
+                        let inner_els = sector_wrp.querySelectorAll('path, rect, polygon, polyline, circle');
 
                         if (ticket.p > self.legend_range[4]) {
                             color = "color_5";
@@ -562,7 +580,7 @@ var vue = new Vue({
                     }
                     
                 } else if (ticket.sn && ticket.scid && ticket.r && +ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-" && +ticket.s) {
-                    var place = $("#hall").find("#" + ticket.ss + " g:nth-child(" + ticket.r + ") path:nth-child(" + parseInt(ticket.s) + ")")[0],
+                    let place = $("#hall").find("#" + ticket.ss + " g:nth-child(" + ticket.r + ") path:nth-child(" + parseInt(ticket.s) + ")")[0],
                         seat_class = "act",
                         cicle = false,
                         color = "color_1";
@@ -629,7 +647,7 @@ var vue = new Vue({
         },
 
         makeLegend() {
-            var self = this,
+            let self = this,
                 tickets = self.seance_data.tickets.sort(function(a,b) {return a.p - b.p});
                 length = tickets.length
                 min_price = tickets[0].p,
@@ -644,7 +662,7 @@ var vue = new Vue({
         },
 
         legendToogle(index) {
-            var id = index + 1;
+            let id = index + 1;
 
             if (!$(".legend__el.active").length) {
                 $("#hall .act, .map_place").addClass("price__off");
@@ -665,7 +683,7 @@ var vue = new Vue({
         },
 
         setAttributes(el, attrs) {
-            for (var key in attrs) {
+            for (let key in attrs) {
                 if (attrs[key]) el.setAttribute(key, attrs[key]);
             }
         },
@@ -679,8 +697,7 @@ var vue = new Vue({
         hoveredNumber(id, s, dc, cx, cy, tr, color) {
             if ($("#hall[data-text='" + id + "']").length > 0 || !s)
                 return;
-            var $text = document.createElementNS('http://www.w3.org/2000/svg', 'text'),
-                s = s.toString(),
+            let $text = document.createElementNS('http://www.w3.org/2000/svg', 'text'),
                 tr_x = 0,
                 tr_y = 0,
                 left, 
@@ -695,6 +712,8 @@ var vue = new Vue({
                 font_size_2 = 4,
                 left_3 = 1.6,
                 left_4 = 7;
+
+            s = s.toString();
                 
             if (tr && tr.indexOf('rotate') < 0) {
                 tr_x = parseInt(tr.slice(tr.indexOf('(') + 1, tr.indexOf(',')));
@@ -742,7 +761,8 @@ var vue = new Vue({
                 $text.setAttribute('data-color', color);
                 $text.innerHTML = s;
 
-                var $check = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                let $check = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
                 $check.setAttribute('data-path', id);
                 $check.setAttribute('style', 'stroke-width: 2; fill: #000000; stroke: #000000; opacity: 1; pointer-events: none !important; display: none;');
                 $check.setAttribute('transform', 'translate('+(cx-3)+', '+(cy-2)+') scale(0.65)');
@@ -753,7 +773,7 @@ var vue = new Vue({
             }
         },
         touchCart() {
-            var self = this;
+            const self = this;
 
             self.cart = [];
 
@@ -780,11 +800,12 @@ var vue = new Vue({
             this.touchCart();
         },
         tellPos(p) {
-            var height = parseInt($(".seance_window").css("height")),
+            let height = parseInt($(".seance_window").css("height")),
                 width = parseInt($(".seance_window").css("max-width"));
 
             if (!p.clientX && !p.clientY && window.hoveredEm) {
-                var bounds = window.hoveredEm.getBoundingClientRect();
+                let bounds = window.hoveredEm.getBoundingClientRect();
+
                 p.clientX = bounds.x + bounds.width / 2;
                 p.clientY = bounds.y + bounds.height / 2;
             }
@@ -795,7 +816,7 @@ var vue = new Vue({
             });
         },
         delTicket(id) {
-            var index = this.cart.findIndex(obj => obj.id === id);
+            let index = this.cart.findIndex(obj => obj.id === id);
 
             this.cart.splice(index, 1);
             localStorage.setItem("cart", JSON.stringify(this.cart));
@@ -807,7 +828,7 @@ var vue = new Vue({
             location.reload();
         },
         makeOrder() {
-            var self = this,
+            let self = this,
                 name = $('#order_form input[name="name"]').val(),
                 phone = $('#order_form input[name="phone"]').val(),
                 email = $('#order_form input[name="email"]').val(),
@@ -841,32 +862,34 @@ var vue = new Vue({
             if (!error) {
                 self.order_loading = true;
 
-                if (self.tilda_widget_id) {
-                    $.ajax({
-                        url: self.api + "payment_tilda/send/",
-                        method: "POST",
-                        data: {
-                            host_name: self.host,
-                            name: name,
-                            phone: phone,
-                            email: email,
-                            comment: comment,
-                            pay_type: pay_type,
-                            tickets: self.cart,
-                        },
-                        success: function(response) {
-                            console.log(response)
-                            
-                            if (response.success) {
-                                var widget = new cp.CloudPayments();
+                const payment_link = self.tilda_widget_id ? "payment_info" : "payment_tilda";
+
+                $.ajax({
+                    url: self.api + payment_link + "/send/",
+                    method: "POST",
+                    data: {
+                        host_name: self.host,
+                        name: name,
+                        phone: phone,
+                        email: email,
+                        comment: comment,
+                        pay_type: pay_type,
+                        tickets: self.cart,
+                    },
+                    success: function(response) {
+                        console.log(response)
+                        
+                        if (response.success) {
+                            if (self.tilda_widget_id) {
+                                let widget = new cp.CloudPayments();
 
                                 widget.pay('auth',
                                     {
                                         publicId: self.tilda_widget_id,
-                                        description: self.host,
+                                        description: self.tilda_widget_deescription,
                                         amount: self.cart_summ,
                                         currency: 'RUB',
-                                        invoiceId: '1234567',
+                                        invoiceId: response.order_id,
                                         email: email,
                                         payer: { 
                                             firstName: name,
@@ -875,88 +898,55 @@ var vue = new Vue({
                                     },
                                     {
                                         onSuccess: function () {
-                                            window.location.href = "order_success";
+                                            setTimeout(function () {
+                                                self.clearCart();
+
+                                                window.location.href = "/order_success";
+                                            }, 1000);
                                         },
                                         onFail: function () {
             
                                         }
                                     }
                                 )
+                            } else {
+                               // window.location.href = response.message
     
-                                if (typeof VK !== 'undefined') {
-                                    VK.Goal('conversion');
-                                }
-    
-                                if (self.yandex && typeof ym !== 'undefined') {
-                                    ym(self.yandex, 'reachGoal', 'lead');
-                                }
+                               self.iframe = response.message
 
-                                if (self.mail_ru && typeof _tmr !== 'undefined') {
-                                    _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
-                                }
-                            } else {
-                                self.sold_modal_ids = response.tikets_id;
-                                self.soldModalShow();
+                               self.clearCart();
+    
+                               $('html').animate({
+                                   scrollTop: 0
+                               }, 400);
                             }
-    
-                            self.order_loading = false;
-    
-                            setTimeout(function () {
-                                self.clearCart();
-                            }, 1000);
-                        }
-                    });
-                } else {
-                    $.ajax({
-                        url: self.api + "payment_tilda/send/",
-                        method: "POST",
-                        data: {
-                            host_name: self.host,
-                            name: name,
-                            phone: phone,
-                            email: email,
-                            comment: comment,
-                            pay_type: pay_type,
-                            tickets: self.cart,
-                        },
-                        success: function(response) {
-                            console.log(response)
-                            
-                            if (response.success) {
-                                // window.location.href = response.message
-    
-                                self.iframe = response.message
-    
-                                $('html').animate({
-                                    scrollTop: 0
-                                }, 400);
-    
-                                if (typeof VK !== 'undefined') {
-                                    VK.Goal('conversion');
-                                }
-    
-                                if (self.yandex && typeof ym !== 'undefined') {
-                                    ym(self.yandex, 'reachGoal', 'lead');
-                                }
-    
-                                if (self.mail_ru && typeof _tmr !== 'undefined') {
-                                    _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
-                                }
-                            } else {
-                                self.sold_modal_ids = response.tikets_id;
-                                self.soldModalShow();
+
+                            if (typeof VK !== 'undefined') {
+                                VK.Goal('conversion');
                             }
-    
-                            setTimeout(function () {
-                                self.clearCart();
-                            }, 1000);
+
+                            if (self.yandex && typeof ym !== 'undefined') {
+                                ym(self.yandex, 'reachGoal', 'lead');
+                            }
+
+                            if (self.mail_ru && typeof _tmr !== 'undefined') {
+                                _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
+                            }
+                        } else {
+                            self.clearCart();
+                            self.sold_modal_ids = response.tikets_id;
+                            self.soldModalShow();
+
+                            self.clearCart();
                         }
-                    });
-                }
+
+                        self.order_loading = false;
+                    }
+                });
             }
         },
         m_ticket(ticket, plus) {
-            var self = this,
+            let self = this,
                 id = ticket.id,
                 sector = ticket.sn,
                 row = ticket.r,
@@ -971,7 +961,7 @@ var vue = new Vue({
                 sell = true;
 
             if (index >= 0) {
-                var count = self.cart[index].count;
+                let count = self.cart[index].count;
 
                 if (plus) {
                     count += 1;
@@ -991,7 +981,7 @@ var vue = new Vue({
                     }
                 }
             } else {
-                var cartItem = {
+                let cartItem = {
                     id: id,
                     sector: sector,
                     row: row,
@@ -1034,7 +1024,7 @@ var vue = new Vue({
             self.touchCart();
         },
         takeText() {
-            var self = this;
+            const self = this;
 
             $.ajax({
                 url: self.api + "page_tilda/",
@@ -1069,7 +1059,7 @@ var vue = new Vue({
             this.sold_modal_staus = false;
         },
         placeList() {
-            var self = this;
+            const self = this;
 
             self.seance_data.tickets.forEach((ticket) => {  
                 if (ticket.ml) {
@@ -1122,7 +1112,7 @@ var vue = new Vue({
             self.list_loaded = true;
         },
         soldModalShow() {
-            var self = this;
+            const self = this;
 
             self.sold_modal_ids.forEach((id) => { 
                 self.cart.forEach((ticket) => { 
