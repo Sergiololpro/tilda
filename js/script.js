@@ -313,21 +313,20 @@ let vue = new Vue({
     },
     methods:{
         async takeinfoFromCache(url, data) {
-            const self = this;
+            const self = this,
+                row = (new URLSearchParams(data)).toString();
 
-            if (!self.cache_requests.has(data.month)) {
-                const response = await $.ajax({
-                    url: url,
-                    method: "GET",
-                    contentType: 'application/json; charset=utf-8',
-                    dataType: 'json',
-                    data: data
+            if (!self.cache_requests.has(row)) {
+                const response = await axios.get(url, {
+                    params: data
                 });
 
-                self.cache_requests.set(data.month, response);
+                const content = await response.data;
+
+                self.cache_requests.set(row, content);
             }
 
-            return self.cache_requests.get(data.month);  
+            return self.cache_requests.get(row);  
         },
         async takeSeances(month, append) {
             const self = this;
