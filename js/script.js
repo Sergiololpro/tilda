@@ -109,7 +109,7 @@ let vue = new Vue({
             });
 
             $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t), .list__input", function(){
-                let id = $(this).data("id"),
+                const id = $(this).data("id"),
                     sector = $(this).data("sn"),
                     row = $(this).data("r"),
                     seat = $(this).data("s"),
@@ -119,12 +119,12 @@ let vue = new Vue({
                     date = $(".date_data").data("date"),
                     index = slf.cart.findIndex(obj => obj.id === id);
 
-                if ( index >= 0) {
+                if (index >= 0) {
                     slf.cart.splice(index, 1);
 
                     $('[data-id="' + $(this).data("id") + '"]').removeClass("sell");
                 } else {
-                    let cartItem = {
+                    const cartItem = {
                         id: id,
                         sector: sector,
                         row: row,
@@ -446,15 +446,15 @@ let vue = new Vue({
                 scrollWheelZoom: false,
             });
   
-            let instant_width = parseInt(viewBox[2], 10),
-                instant_height = parseInt(viewBox[3], 10),
-                scale = window.innerWidth * .9 / instant_width;
+            const instant_width = parseInt(viewBox[2], 10),
+                instant_height = parseInt(viewBox[3], 10);
+            let scale = window.innerWidth * .9 / instant_width;
 
             if (instant_height > instant_width) {
                 scale = window.innerWidth * .9  / instant_height
             }
   
-            let width = (window.innerWidth * .8 ),
+            const width = (window.innerWidth * .8 ),
                 height = (window.innerHeight - 300);
   
             $('#hall').css('height', height + 100 + 'px');
@@ -634,8 +634,8 @@ let vue = new Vue({
         },
 
         makeLegend() {
-            let self = this,
-                tickets = self.seance_data.tickets.sort(function(a,b) {return a.p - b.p});
+            const self = this;
+            let tickets = self.seance_data.tickets.sort(function(a,b) {return a.p - b.p});
                 length = tickets.length
                 min_price = tickets[0].p,
                 max_price = tickets[length - 1].p,
@@ -649,7 +649,7 @@ let vue = new Vue({
         },
 
         legendToogle(index) {
-            let id = index + 1;
+            const id = index + 1;
 
             if (!$(".legend__el.active").length) {
                 $("#hall .act, .map_place").addClass("price__off");
@@ -787,11 +787,11 @@ let vue = new Vue({
             this.touchCart();
         },
         tellPos(p) {
-            let height = parseInt($(".seance_window").css("height")),
+            const height = parseInt($(".seance_window").css("height")),
                 width = parseInt($(".seance_window").css("max-width"));
 
             if (!p.clientX && !p.clientY && window.hoveredEm) {
-                let bounds = window.hoveredEm.getBoundingClientRect();
+                const bounds = window.hoveredEm.getBoundingClientRect();
 
                 p.clientX = bounds.x + bounds.width / 2;
                 p.clientY = bounds.y + bounds.height / 2;
@@ -803,7 +803,7 @@ let vue = new Vue({
             });
         },
         delTicket(id) {
-            let index = this.cart.findIndex(obj => obj.id === id);
+            const index = this.cart.findIndex(obj => obj.id === id);
 
             this.cart.splice(index, 1);
             localStorage.setItem("cart", JSON.stringify(this.cart));
@@ -815,8 +815,8 @@ let vue = new Vue({
             location.reload();
         },
         makeOrder() {
-            let self = this,
-                name = $('#order_form input[name="name"]').val(),
+            const self = this;
+            let name = $('#order_form input[name="name"]').val(),
                 phone = $('#order_form input[name="phone"]').val(),
                 email = $('#order_form input[name="email"]').val(),
                 comment = $('#order_form textarea[name="comment"]').val(),
@@ -933,8 +933,8 @@ let vue = new Vue({
             }
         },
         m_ticket(ticket, plus) {
-            let self = this,
-                id = ticket.id,
+            const self = this;
+            let id = ticket.id,
                 sector = ticket.sn,
                 row = ticket.r,
                 seat = ticket.s,
@@ -968,7 +968,7 @@ let vue = new Vue({
                     }
                 }
             } else {
-                let cartItem = {
+                const cartItem = {
                     id: id,
                     sector: sector,
                     row: row,
