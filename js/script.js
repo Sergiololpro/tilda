@@ -7,19 +7,19 @@ let vue = new Vue({
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
-        // slug: "krokus_siti_holl",
-        // host: "crocus-holl.com",
-        // api: "https://crocus-holl.com/api/v1/",
+        slug: "krokus_siti_holl",
+        host: "crocus-holl.com",
+        api: "https://crocus-holl.com/api/v1/",
         // slug: "radisson_royal",
         // host: "radissontickets.com",
         // api: "https://radissontickets.com/api/v1/",
         // slug: "moskovskij_planetarij",
         // host: "planetariym.com",
         // api: "https://planetariym.com/api/v1/",
-        slug: "besprintsypnye-chtenija",
-        slug_event: "besprintsypnye-chtenija",
-        host: "dev.doorway.sys-tix.com",
-        api: "https://dev.doorway.sys-tix.com/api/v1/",
+        // slug: "besprintsypnye-chtenija",
+        // slug_event: "besprintsypnye-chtenija",
+        // host: "dev.doorway.sys-tix.com",
+        // api: "https://dev.doorway.sys-tix.com/api/v1/",
         yandex: 92990926,
         mail_ru: 3318007,
         title_text: " | Ленком",
@@ -531,7 +531,7 @@ let vue = new Vue({
                                 this.dataset.color
                             );
         
-                            if (this.classList.contains('sell')) {
+                            if (this.classList.contains('sell') && document.querySelector(`text[data-text="${this.dataset.id}"]`)) {
                                 document.querySelector(`text[data-text="${this.dataset.id}"]`).style.display = "block";
                             }
                         }
@@ -720,7 +720,7 @@ let vue = new Vue({
         },
 
         hoveredNumber(id, s, dc, cx, cy, tr, color) {
-            if (document.querySelector(`#hall[data-text='${id}]`) || !s) {
+            if (document.querySelector(`#hall[data-text='${id}]`) || !s || !document.querySelector("#hall circle")) {
                 return;
             }
     
@@ -1043,10 +1043,12 @@ let vue = new Vue({
                 self.m_tickets[m_index].count = 1;
             }
 
-            if (sell) {
-                document.querySelector(`[data-id="${id}"]`).classList.add("sell");
-            } else {
-                document.querySelector(`[data-id="${id}"]`).classList.remove("sell");
+            if (document.querySelector(`[data-id="${id}"]`)) {
+                if (sell) {
+                    document.querySelector(`[data-id="${id}"]`).classList.add("sell");
+                } else {
+                    document.querySelector(`[data-id="${id}"]`).classList.remove("sell");
+                }
             }
 
             localStorage.setItem("cart", JSON.stringify(self.cart));
