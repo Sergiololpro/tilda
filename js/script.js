@@ -93,112 +93,77 @@ let vue = new Vue({
     },
     computed: {
         seancesGroups: function() {
-            if ( this.seances.length == 0 )
-                return {};
-            return this.seances.reduce(function (r, a) {
+            if (this.seances.length == 0) return {};
+
+            return this.seances.reduce((r, a) => {
                 r[a.date] = r[a.date] || [];
                 r[a.date].push(a);
                 return r;
             }, Object.create(null));
         },
         eventGroups: function() {
-            if ( this.event_data == 0 )
-                return {};
-            return this.event_data.seances.reduce(function (r, a) {
+            if (this.event_data == 0) return {};
+
+            return this.event_data.seances.reduce((r, a) => {
                 r[a.starts_at] = r[a.starts_at] || [];
                 r[a.starts_at].push(a);
                 return r;
             }, Object.create(null));
         },
         seanceDay: function() {
-            return function(date) {
-                return date.split("T")[0].split("-")[2];
-            }
+            return (date) => date.split("T")[0].split("-")[2];
         },
         seanceMonth: function() {
-            const self = this;
-
-            return function(date) {
-                return self.staticMonthsDat[new Date(date).getMonth()];
-            }
+            return (date) => this.staticMonthsDat[new Date(date).getMonth()];
         },
         seanceD: function() {
-            return function(date) {
-                return new Date(date).getDay();
-            }
+            return (date) => new Date(date).getDay();
         },
         seanceWeek: function() {
-            const self = this;
-
-            return function(date) {
-                return self.week[new Date(date).getDay()];
-            }
+            return (date) => this.week[new Date(date).getDay()];
         },
         seanceWeekShort: function() {
-            const self = this;
-
-            return function(date) {
-                return self.week_short[new Date(date).getDay()];
-            }
+            return (date) => this.week_short[new Date(date).getDay()];
         },
         seanceHour: function() {
-            return function(date) {
-                return new Date(date).getUTCHours() + ":" + ('0' + new Date(date).getMinutes()).slice(-2);
-            }
+            return (date) => `${new Date(date).getUTCHours()}:${('0' + new Date(date).getMinutes()).slice(-2)}`;
         },
         seanceHour2: function() {
-            return function(date) {
-                return new Date(date).getHours() + ":" + ('0' + new Date(date).getMinutes()).slice(-2);
-            }
+            return (date) => `${new Date(date).getHours()}:${('0' + new Date(date).getMinutes()).slice(-2)}`;
         },
         seanceImage: function() {
-            return function(seance) {
-                return "background-image: url(" + seance.image + ");";
-            }
+            return (seance) => `background-image: url(${seance.image});`;
         },
         eventImage: function() {
-            return function(event) {
+            return (event) => {
                 const row = event.preview_header ? event.preview_header : event.image;
-                return "background-image: url(https://" + this.host + row + ");";
+                return `background-image: url(https://${this.host}${row});`;
             }
         },
         eventPhoto: function() {
-            return function(photo) {
-                return "background-image: url(https://" + this.host + photo.photo_opt + ");";
-            }
+            return (photo) => `background-image: url(https://${this.host}${photo.photo_opt});`;
         },
         filterMonth: function() {
-            const self = this;
-
-            return function(month) {
-                return self.staticMonths[parseInt(month.split("-")[1]) - 1];
-            }
+            return (month) => this.staticMonths[parseInt(month.split("-")[1]) - 1];
         },
         filterYear: function() {
-            return function(month) {
-                return parseInt(month.split("-")[0]);
-            }
+            return (month) => parseInt(month.split("-")[0]);
         },
-        groupTickets: function() {
-            const self = this;
-            
-            return Object.values(self.cart).reduce(function(rv, x) {
+        groupTickets: function() {            
+            return Object.values(this.cart).reduce((rv, x) => {
                 (rv[x["seance_id"]] = rv[x["seance_id"]] || []).push(x);
                 return rv;
               }, {});
         },
         textPageTitle: function() {
-            const self = this;
-            
-            return self.page_content.seo_title ? self.page_content.seo_title : self.page_content.banner_title
+            return this.page_content.seo_title ? this.page_content.seo_title : this.page_content.banner_title
         },
     },
     methods:{
         async takeinfoFromCache(url, data) {
-            const self = this,
-                row = JSON.stringify(data);
+            const row = JSON.stringify(data);
 
-            if (!self.cache_requests.has(row)) {
+            if (!this.cache_requests.has(row)) {
                 const response = await axios.get(url, {
                     params: data
                 });
@@ -207,123 +172,119 @@ let vue = new Vue({
 
                 console.log(content);
 
-                self.cache_requests.set(row, content);
+                this.cache_requests.set(row, content);
             }
 
-            return self.cache_requests.get(row);  
+            return this.cache_requests.get(row);  
         },
         async takeSeances(month, append) {
-            const self = this;
-
             let data = {
-                host_name: self.host
+                host_name: this.host
             };
 
-            self.loading = true;
+            this.loading = true;
 
             if (month) {
-                self.activeMonth = self.navMonth = month;
-                self.nextMonth = self.months[self.months.indexOf(month) + 1];
-                data.month = self.activeMonth; 
+                this.activeMonth = this.navMonth = month;
+                this.nextMonth = this.months[this.months.indexOf(month) + 1];
+                data.month = this.activeMonth; 
             }
 
-            if (self.slug_event) {
-                data.slug_event = self.slug_event;
+            if (this.slug_event) {
+                data.slug_event = this.slug_event;
             } else {
-                data.place_slug = self.slug; 
+                data.place_slug = this.slug; 
             }
 
-            const response = await self.takeinfoFromCache(self.api + "events_tilda/", data);
+            const response = await this.takeinfoFromCache(this.api + "events_tilda/", data);
 
-            self.seances = append ? self.seances.concat(response.results) : response.results;
-            self.loading = false;
+            this.seances = append ? this.seances.concat(response.results) : response.results;
+            this.loading = false;
 
-            if (!self.months.length) {
-                self.months = response.months;
-                self.activeMonth = response.months[response.months.length - 1];
-                self.nextMonth = self.months[self.months.indexOf(self.activeMonth) + 1];
-                self.navMonth = response.months[0];
+            if (!this.months.length) {
+                this.months = response.months;
+                this.activeMonth = response.months[response.months.length - 1];
+                this.nextMonth = this.months[this.months.indexOf(this.activeMonth) + 1];
+                this.navMonth = response.months[0];
             }
         },
 
         async takeEvent(month, append) {
-            const self = this;
+            this.loading = true;
 
-            self.loading = true;
-
-            const response = await axios.get(`${self.api}event_tilda/`, {
+            const response = await axios.get(`${this.api}event_tilda/`, {
                 params: {
-                    host_name: self.host,
-                    event_id: self.event_id
+                    host_name: this.host,
+                    event_id: this.event_id
                 }
             });
 
-            self.event_data = await response.data;
+            this.event_data = await response.data;
 
-            console.log(self.event_data);
+            console.log(this.event_data);
 
-            self.loading = false;
+            this.loading = false;
 
-            document.title = "Купить билеты на " + self.event_data.title + self.title_text;
+            document.title = "Купить билеты на " + this.event_data.title + this.title_text;
         },
 
         async takeSeance() {
-            const self = this;
+            this.loading = true;
 
-            self.loading = true;
-
-            const response = await axios.get(`${self.api}event_scheme_tilda/`, {
+            const response = await axios.get(`${this.api}event_scheme_tilda/`, {
                 params: {
-                    host_name: self.host,
-                    event_id: self.seance_event_id,
-                    seance_id:  self.seance_seance_id,
+                    host_name: this.host,
+                    event_id: this.seance_event_id,
+                    seance_id:  this.seance_seance_id,
                 }
             });
 
-            self.seance_data  = await response.data;
+            this.seance_data  = await response.data;
 
-            console.log(self.seance_data);
+            console.log(this.seance_data);
 
-            document.title = "Купить билеты на " + self.seance_data.map_api_data.name + " - " + self.seance_data.hall_name + self.title_text;
+            document.title = `Купить билеты на "${this.seance_data.map_api_data.name} - ${this.seance_data.hall_name}${this.title_text}`;
 
-            if (self.seance_data.map_api_data.hall) {
-                self.hall_map = self.seance_data.map_api_data.hall.hall_map;
-                self.list_map = self.seance_data.map_api_data.hall.extended_hall_map || self.seance_data.map_api_data.hall.hall_map;
+            if (this.seance_data.map_api_data.hall) {
+                this.hall_map = this.seance_data.map_api_data.hall.hall_map;
+                this.list_map = this.seance_data.map_api_data.hall.extended_hall_map
+                    || this.seance_data.map_api_data.hall.hall_map;
             }
 
 
-            if (self.seance_data.hallmaps_settings && self.seance_data.hallmaps_settings[0] && self.seance_data.hallmaps_settings[0][3]) {
-                self.map_view = self.seance_data.hallmaps_settings[0][3];
+            if (
+                this.seance_data.hallmaps_settings
+                && this.seance_data.hallmaps_settings[0]
+                && this.seance_data.hallmaps_settings[0][3]
+            ) {
+                this.map_view = this.seance_data.hallmaps_settings[0][3];
             }
 
-            if (self.hall_map) {
-                self.takeScheme();
+            if (this.hall_map) {
+                this.takeScheme();
             } else {
-                if (self.seance_data.tickets) {
-                    self.placeTickets();
+                if (this.seance_data.tickets) {
+                    this.placeTickets();
                 }
 
-                self.map_view = "list";
-                self.show_map_switch = false;
+                this.map_view = "list";
+                this.show_map_switch = false;
             }
 
-            self.placeList();
+            this.placeList();
         },
 
         async takeScheme() {
-            const self = this;
-
-            const response = await axios.get(self.hall_map);
+            const response = await axios.get(this.hall_map);
 
             const content = await response.data;
 
             document.querySelector("#hall").innerHTML = content;
-            self.init_scheme();
+            this.init_scheme();
         },
 
         init_scheme() {
-            const self = this,
-                window_width = (window.innerWidth / 100) * 90,
+            const window_width = (window.innerWidth / 100) * 90,
                 scheme = document.querySelector('#hall > svg'),
                 viewBox = scheme.getAttribute('viewBox').split(' ');
   
@@ -352,47 +313,45 @@ let vue = new Vue({
             const svg = document.querySelector("body").querySelector("svg"),
                 mapPane = document.querySelector("body").querySelector(".leaflet-map-pane");
 
-            document.querySelector("#hall").addEventListener("mousedown", function(){
+            document.querySelector("#hall").addEventListener("mousedown", () => {
                 svg.style.willChange = "transform";
                 mapPane.style.willChange = "transform";
             });
 
-            document.querySelector("#hall").addEventListener("mouseup", function(){
+            document.querySelector("#hall").addEventListener("mouseup", () => {
                 svg.style.willChange = "unset";
                 mapPane.style.willChange = "unset";
             });
 
-            if (self.seance_data.tickets) {
-                self.placeTickets();
+            if (this.seance_data.tickets) {
+                this.placeTickets();
             }
         },
 
         placeTickets() {
-            const self = this;
-            
-            if (self.hall_map) {
-                self.makeLegend();
+            if (this.hall_map) {
+                this.makeLegend();
             }
 
-            self.seance_data.tickets.forEach((ticket) => {  
+            this.seance_data.tickets.forEach((ticket) => {  
                 if (ticket.ml) {
                     let m_ticket = ticket,
-                        index = self.cart.findIndex(obj => obj.id === m_ticket.id),
+                        index = this.cart.findIndex(obj => obj.id === m_ticket.id),
                         seat_class = "act m_t",
                         color = "color_1";
           
                     if (index > -1) {
-                        m_ticket.count = self.cart[index].count;
+                        m_ticket.count = this.cart[index].count;
                     } else {
                         m_ticket.count = 0;
                     }
 
-                    self.m_tickets.push(ticket);
+                    this.m_tickets.push(ticket);
                     let sector = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
                         sector_wrp = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
 
                     if (sector) {
-                        self.setAttributes(sector, {
+                        this.setAttributes(sector, {
                             'class': "active_sector",
                             'data-sn': ticket.sn,
                             'data-ss': ticket.ss,
@@ -401,23 +360,23 @@ let vue = new Vue({
 
                         let inner_els = sector_wrp.querySelectorAll('path, rect, polygon, polyline, circle');
 
-                        if (ticket.p > self.legend_range[4]) {
+                        if (ticket.p > this.legend_range[4]) {
                             color = "color_5";
-                        } else if (ticket.p > self.legend_range[3]) {
+                        } else if (ticket.p > this.legend_range[3]) {
                             color = "color_4";
-                        } else if (ticket.p > self.legend_range[2]) {
+                        } else if (ticket.p > this.legend_range[2]) {
                             color = "color_3";
-                        } else if (ticket.p > self.legend_range[1]) {
+                        } else if (ticket.p > this.legend_range[1]) {
                             color = "color_2";
                         } else {
                             color = "color_1"
                         }
 
-                        if (self.cart.findIndex(obj => obj.id === ticket.id) >= 0) {
+                        if (this.cart.findIndex(obj => obj.id === ticket.id) >= 0) {
                             seat_class += " sell";
                         }
 
-                        self.setMultiplyAttributes(inner_els, {
+                        this.setMultiplyAttributes(inner_els, {
                             'class': seat_class,
                             'data-p': ticket.p,
                             'data-np': ticket.np,
@@ -454,23 +413,23 @@ let vue = new Vue({
                     }
 
                     if (place) {
-                        if (ticket.p > self.legend_range[4]) {
+                        if (ticket.p > this.legend_range[4]) {
                             color = "color_5";
-                        } else if (ticket.p > self.legend_range[3]) {
+                        } else if (ticket.p > this.legend_range[3]) {
                             color = "color_4";
-                        } else if (ticket.p > self.legend_range[2]) {
+                        } else if (ticket.p > this.legend_range[2]) {
                             color = "color_3";
-                        } else if (ticket.p > self.legend_range[1]) {
+                        } else if (ticket.p > this.legend_range[1]) {
                             color = "color_2";
                         } else {
                             color = "color_1"
                         }
 
-                        if (self.cart.findIndex(obj => obj.id === ticket.id) >= 0) {
+                        if (this.cart.findIndex(obj => obj.id === ticket.id) >= 0) {
                             seat_class += " sell";
 
                             if (circle) {
-                                self.hoveredNumber(
+                                this.hoveredNumber(
                                     ticket.id,
                                     ticket.s,
                                     place.getAttribute('data-c'),
@@ -482,7 +441,7 @@ let vue = new Vue({
                             }
                         }
     
-                        self.setAttributes(place, {
+                        this.setAttributes(place, {
                             'class': seat_class,
                             'data-p': ticket.p,
                             'data-np': ticket.np,
@@ -508,9 +467,9 @@ let vue = new Vue({
                 }
             });
 
-            self.addSchemeEvents();            
+            this.addSchemeEvents();            
 
-            self.loading = false;
+            this.loading = false;
         },
 
         addSchemeEvents() {
@@ -594,7 +553,7 @@ let vue = new Vue({
                     });
                 });
 
-            addEventListener('mousemove', self.tellPos, false);
+            addEventListener('mousemove', this.tellPos, false);
 
             document.querySelector("body")
                 .querySelectorAll("svg .act, svg .active_sector")
@@ -650,18 +609,18 @@ let vue = new Vue({
         },
 
         makeLegend() {
-            const self = this;
-            let tickets = self.seance_data.tickets.sort(function(a,b) {return a.p - b.p});
+            let tickets = this.seance_data.tickets.sort((a,b) => a.p - b.p);
                 length = tickets.length
                 min_price = tickets[0].p,
-                max_price = tickets[length - 1].p,
-                self.legend_range[0] = min_price,
-                self.legend_range[1] = Math.floor(min_price + ((max_price - min_price) * .1)),
-                self.legend_range[2] = Math.floor(min_price + ((max_price - min_price) * .2)),
-                self.legend_range[3] = Math.floor(min_price + ((max_price - min_price) * .3)),
-                self.legend_range[4] = Math.floor(min_price + ((max_price - min_price) * .4));
+                max_price = tickets[length - 1].p;
 
-                this.$forceUpdate();
+            this.legend_range[0] = min_price,
+            this.legend_range[1] = Math.floor(min_price + ((max_price - min_price) * .1)),
+            this.legend_range[2] = Math.floor(min_price + ((max_price - min_price) * .2)),
+            this.legend_range[3] = Math.floor(min_price + ((max_price - min_price) * .3)),
+            this.legend_range[4] = Math.floor(min_price + ((max_price - min_price) * .4));
+
+            this.$forceUpdate();
         },
 
         legendToogle(index) {
@@ -800,18 +759,16 @@ let vue = new Vue({
             }
         },
         touchCart() {
-            const self = this;
-
-            self.cart = [];
+            this.cart = [];
 
             if (localStorage.getItem("cart")) {
-                self.cart = JSON.parse(localStorage.getItem("cart"));
+                this.cart = JSON.parse(localStorage.getItem("cart"));
             }
 
-            self.cart_summ = 0;
+            this.cart_summ = 0;
 
-            self.cart.forEach((ticket) => {
-                self.cart_summ += ticket.price * ticket.count;
+            this.cart.forEach((ticket) => {
+                this.cart_summ += ticket.price * ticket.count;
             })
         },
         clearCart() {
@@ -857,7 +814,6 @@ let vue = new Vue({
             location.reload();
         },
         makeOrder() {
-            const self = this;
             let name = document.querySelector('#order_form input[name="name"]').value,
                 phone = document.querySelector('#order_form input[name="phone"]').value,
                 email = document.querySelector('#order_form input[name="email"]').value,
@@ -892,18 +848,18 @@ let vue = new Vue({
             }
 
             if (!error) {
-                self.order_loading = true;
+                this.order_loading = true;
 
-                const payment_link = self.tilda_widget_id ? "payment_info" : "payment_tilda";
+                const payment_link = this.tilda_widget_id ? "payment_info" : "payment_tilda";
 
-                axios.post(`${self.api}${payment_link}/send/`, {
-                    host_name: self.host,
+                axios.post(`${this.api}${payment_link}/send/`, {
+                    host_name: this.host,
                     name: name,
                     phone: phone,
                     email: email,
                     comment: comment,
                     pay_type: pay_type,
-                    tickets: self.cart,
+                    tickets: this.cart,
                 },{
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -914,14 +870,14 @@ let vue = new Vue({
                     console.log(resp)
                     
                     if (resp.success) {
-                        if (self.tilda_widget_id) {
+                        if (this.tilda_widget_id) {
                             let widget = new cp.CloudPayments();
 
                             widget.pay('auth',
                                 {
-                                    publicId: self.tilda_widget_id,
-                                    description: self.tilda_widget_deescription,
-                                    amount: self.cart_summ,
+                                    publicId: this.tilda_widget_id,
+                                    description: this.tilda_widget_deescription,
+                                    amount: this.cart_summ,
                                     currency: 'RUB',
                                     invoiceId: resp.order_id,
                                     email: email,
@@ -931,14 +887,13 @@ let vue = new Vue({
                                     }
                                 },
                                 {
-                                    onSuccess: function () {
-                                        setTimeout(function () {
-                                            self.clearCart();
-
+                                    onSuccess: () => {
+                                        setTimeout(() => {
+                                            this.clearCart();
                                             window.location.href = "/order_success";
                                         }, 1000);
                                     },
-                                    onFail: function () {
+                                    onFail: () => {
         
                                     }
                                 }
@@ -946,9 +901,9 @@ let vue = new Vue({
                         } else {
                            // window.location.href = response.message
 
-                           self.iframe = resp.message
+                           this.iframe = resp.message
 
-                           self.clearCart();
+                           this.clearCart();
 
                            window.scrollTo({top: 0, behavior: 'smooth'});
                         }
@@ -957,26 +912,25 @@ let vue = new Vue({
                             VK.Goal('conversion');
                         }
 
-                        if (self.yandex && typeof ym !== 'undefined') {
-                            ym(self.yandex, 'reachGoal', 'lead');
+                        if (this.yandex && typeof ym !== 'undefined') {
+                            ym(this.yandex, 'reachGoal', 'lead');
                         }
 
-                        if (self.mail_ru && typeof _tmr !== 'undefined') {
-                            _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'lead'});
+                        if (this.mail_ru && typeof _tmr !== 'undefined') {
+                            _tmr.push({ type: 'reachGoal', id: this.mail_ru, goal: 'lead'});
                         }
                     } else {
-                        self.sold_modal_ids = resp.tikets_id;
-                        self.soldModalShow();
+                        this.sold_modal_ids = resp.tikets_id;
+                        this.soldModalShow();
 
-                        self.clearCart();
+                        this.clearCart();
                     }
 
-                    self.order_loading = false;
+                    this.order_loading = false;
                 });
             }
         },
         m_ticket(ticket, plus) {
-            const self = this;
             let id = ticket.id,
                 sector = ticket.sn,
                 row = ticket.r,
@@ -986,28 +940,28 @@ let vue = new Vue({
                 title = document.querySelector(".seance_top__title").dataset.title,
                 location = document.querySelector(".seance").dataset.location,
                 date = document.querySelector(".date_data").dataset.date,
-                index = self.cart.findIndex(obj => obj.id === id),
-                m_index = self.m_tickets.findIndex(obj => obj.id === id),
+                index = this.cart.findIndex(obj => obj.id === id),
+                m_index = this.m_tickets.findIndex(obj => obj.id === id),
                 sell = true;
 
             if (index >= 0) {
-                let count = self.cart[index].count;
+                let count = this.cart[index].count;
 
                 if (plus) {
                     count += 1;
-                    self.cart[index].count = count;
-                    self.m_tickets[m_index].count = count;
+                    this.cart[index].count = count;
+                    this.m_tickets[m_index].count = count;
                 } else {
                     if (count == 1) {
                         count = 0;
-                        self.cart.splice(index, 1);
-                        self.m_tickets[m_index].count = count;
+                        this.cart.splice(index, 1);
+                        this.m_tickets[m_index].count = count;
 
                         sell = false;
                     } else {
                         count -= 1;
-                        self.cart[index].count = count;
-                        self.m_tickets[m_index].count = count;
+                        this.cart[index].count = count;
+                        this.m_tickets[m_index].count = count;
                     }
                 }
             } else {
@@ -1020,27 +974,27 @@ let vue = new Vue({
                     title: title,
                     location: location,
                     date: date,
-                    seance_id: self.seance_seance_id,
+                    seance_id: this.seance_seance_id,
                     count: 1,
                     is_multipled: true,
                     qty: qty,
                 };
 
-                self.cart.push(cartItem);
+                this.cart.push(cartItem);
 
                 if (typeof VK !== 'undefined') {
                     VK.Goal('add_to_cart');
                 }
 
-                if (self.yandex && typeof ym !== 'undefined') {
-                    ym(self.yandex, 'reachGoal', 'add_to_cart');
+                if (this.yandex && typeof ym !== 'undefined') {
+                    ym(this.yandex, 'reachGoal', 'add_to_cart');
                 }
 
-                if (self.mail_ru && typeof _tmr !== 'undefined') {
-                    _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'add_to_card'});
+                if (this.mail_ru && typeof _tmr !== 'undefined') {
+                    _tmr.push({ type: 'reachGoal', id: this.mail_ru, goal: 'add_to_card'});
                 }
 
-                self.m_tickets[m_index].count = 1;
+                this.m_tickets[m_index].count = 1;
             }
 
             if (document.querySelector(`[data-id="${id}"]`)) {
@@ -1051,107 +1005,111 @@ let vue = new Vue({
                 }
             }
 
-            localStorage.setItem("cart", JSON.stringify(self.cart));
+            localStorage.setItem("cart", JSON.stringify(this.cart));
 
-            self.touchCart();
+            this.touchCart();
         },
         async takeText() {
-            const self = this;
-
-            const response = await axios.get(`${self.api}page_tilda/`, {
+            const response = await axios.get(`${this.api}page_tilda/`, {
                 params: {
-                    host_name: self.host,
-                    page_slug: self.text_page
+                    host_name: this.host,
+                    page_slug: this.text_page
                 }
             });
 
-            self.page_content = await response.data[0];
+            this.page_content = await response.data[0];
 
-            console.log(self.page_content)
+            console.log(this.page_content)
 
-            if (self.text_page == "about") {
-                self.page_text = self.page_content.about_text;
-            } else if (self.text_page == "guarantee") {
-                self.page_text = self.page_content.guarantee_text;
-            } else if (self.text_page == "delivery") {
-                self.page_text = self.page_content.delivery_text;
-            } else if (self.text_page == "offer") {
-                self.page_text = self.page_content.offer_text;
-            } else if (self.text_page == "payment") {
-                self.page_text = self.page_content.payment_text;
-            } else if (self.text_page == "confidential") {
-                self.page_text = self.page_content.text;
-            } else if (self.text_page == "contact") {
-                self.page_text = self.page_content.contact_text;
+            if (this.text_page == "about") {
+                this.page_text = this.page_content.about_text;
+            } else if (this.text_page == "guarantee") {
+                this.page_text = this.page_content.guarantee_text;
+            } else if (this.text_page == "delivery") {
+                this.page_text = this.page_content.delivery_text;
+            } else if (this.text_page == "offer") {
+                this.page_text = this.page_content.offer_text;
+            } else if (this.text_page == "payment") {
+                this.page_text = this.page_content.payment_text;
+            } else if (this.text_page == "confidential") {
+                this.page_text = this.page_content.text;
+            } else if (this.text_page == "contact") {
+                this.page_text = this.page_content.contact_text;
             }
         },
         closeSoldModal() {
             this.sold_modal_staus = false;
         },
         placeList() {
-            const self = this;
-
-            self.seance_data.tickets.forEach((ticket) => {  
+            this.seance_data.tickets.forEach((ticket) => {  
                 if (ticket.ml) {
-                    self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
-                    self.list_tickets[ticket.ss].push(ticket);
+                    this.list_tickets[ticket.ss] = this.list_tickets[ticket.ss] || [];
+                    this.list_tickets[ticket.ss].push(ticket);
 
-                    self.list_tickets[ticket.ss]["ml"] = true;
+                    this.list_tickets[ticket.ss]["ml"] = true;
 
-                    self.list_tickets[ticket.ss]["count"] = self.list_tickets[ticket.ss]["count"] + ticket.qty || ticket.qty;
+                    this.list_tickets[ticket.ss]["count"] = this.list_tickets[ticket.ss]["count"] + ticket.qty || ticket.qty;
                 } else {
-                    self.list_tickets[ticket.ss] = self.list_tickets[ticket.ss] || [];
-                    self.list_tickets[ticket.ss][ticket.r] = self.list_tickets[ticket.ss][ticket.r] || [];
-                    self.list_tickets[ticket.ss][ticket.r].push(ticket);
+                    this.list_tickets[ticket.ss] = this.list_tickets[ticket.ss] || [];
+                    this.list_tickets[ticket.ss][ticket.r] = this.list_tickets[ticket.ss][ticket.r] || [];
+                    this.list_tickets[ticket.ss][ticket.r].push(ticket);
                     
-                    self.list_tickets[ticket.ss]["count"] = self.list_tickets[ticket.ss]["count"] + 1 || 1;
+                    this.list_tickets[ticket.ss]["count"] = this.list_tickets[ticket.ss]["count"] + 1 || 1;
 
-                    self.list_tickets[ticket.ss][ticket.r]["status"] = false;
+                    this.list_tickets[ticket.ss][ticket.r]["status"] = false;
     
-                    if (!self.list_tickets[ticket.ss][ticket.r]["min_price"] || ticket.p < self.list_tickets[ticket.ss][ticket.r]["min_price"]) {
-                        self.list_tickets[ticket.ss][ticket.r]["min_price"] = ticket.p;
+                    if (
+                        !this.list_tickets[ticket.ss][ticket.r]["min_price"]
+                        || ticket.p < this.list_tickets[ticket.ss][ticket.r]["min_price"]
+                    ) {
+                        this.list_tickets[ticket.ss][ticket.r]["min_price"] = ticket.p;
                     }
                 }
 
-                self.list_tickets[ticket.ss]["title"] = ticket.sn;
+                this.list_tickets[ticket.ss]["title"] = ticket.sn;
 
-                self.list_tickets[ticket.ss]["status"] = false;
+                this.list_tickets[ticket.ss]["status"] = false;
 
-                if (!self.list_tickets[ticket.ss]["min_price"] || ticket.p < self.list_tickets[ticket.ss]["min_price"]) {
-                    self.list_tickets[ticket.ss]["min_price"] = ticket.p;
+                if (
+                    !this.list_tickets[ticket.ss]["min_price"]
+                    || ticket.p < this.list_tickets[ticket.ss]["min_price"]
+                ) {
+                    this.list_tickets[ticket.ss]["min_price"] = ticket.p;
                 }
 
-                if (!self.list_tickets[ticket.ss]["max_price"] || ticket.p > self.list_tickets[ticket.ss]["max_price"]) {
-                    self.list_tickets[ticket.ss]["max_price"] = ticket.p;
+                if (
+                    !this.list_tickets[ticket.ss]["max_price"]
+                    || ticket.p > this.list_tickets[ticket.ss]["max_price"]
+                ) {
+                    this.list_tickets[ticket.ss]["max_price"] = ticket.p;
                 }
             });
 
-            console.log(self.list_tickets)
+            console.log(this.list_tickets)
 
-            for (const property in self.list_tickets) {
-                for (const row in self.list_tickets[property]) {
-                    if (!self.list_tickets[property]["ml"] && typeof self.list_tickets[property][row] === 'object') {
-                        self.list_tickets[property][row].sort(function(a, b) {
-                            return a.p - b.p || a.s - b.s;
-                        });
+            for (const property in this.list_tickets) {
+                for (const row in this.list_tickets[property]) {
+                    if (
+                        !this.list_tickets[property]["ml"]
+                        && typeof this.list_tickets[property][row] === 'object'
+                    ) {
+                        this.list_tickets[property][row].sort((a, b) => a.p - b.p || a.s - b.s);
                     }
                 }
             }
         },
         soldModalShow() {
-            const self = this;
-
-            self.sold_modal_ids.forEach((id) => { 
-                self.cart.forEach((ticket) => { 
+            this.sold_modal_ids.forEach((id) => { 
+                this.cart.forEach((ticket) => { 
                     if (id == ticket.id) {
-                        self.sold_modal_tickets.push(ticket.sector + ", ряд " + ticket.row + ", место " + ticket.seat);
+                        this.sold_modal_tickets.push(ticket.sector + ", ряд " + ticket.row + ", место " + ticket.seat);
 
-                        self.sold_modal_link = "/seance#" + ticket.event_id + "&" + ticket.seance_id;
+                        this.sold_modal_link = "/seance#" + ticket.event_id + "&" + ticket.seance_id;
                     }
                 });
             });
 
-            self.sold_modal_staus = true;
+            this.sold_modal_staus = true;
         },
         toggleMapView(view) {
             this.map_view = view;
