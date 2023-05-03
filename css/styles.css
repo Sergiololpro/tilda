@@ -809,6 +809,7 @@ body #crocus .act[data-c="1"].price__off,
 body #crocus .act.sell[data-c="1"],
 #crocus .act.sell {
     fill: #fff !important;
+    r: 13px !important;
 }
 
 body #crocus .act[data-c="1"]:hover,

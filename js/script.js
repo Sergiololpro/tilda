@@ -7,19 +7,19 @@ let vue = new Vue({
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
-        // slug: "krokus_siti_holl",
-        // host: "crocus-holl.com",
-        // api: "https://crocus-holl.com/api/v1/",
+        slug: "krokus_siti_holl",
+        host: "crocus-holl.com",
+        api: "https://crocus-holl.com/api/v1/",
         // slug: "radisson_royal",
         // host: "radissontickets.com",
         // api: "https://radissontickets.com/api/v1/",
         // slug: "moskovskij_planetarij",
         // host: "planetariym.com",
         // api: "https://planetariym.com/api/v1/",
-        slug: "besprintsypnye-chtenija",
-        slug_event: "besprintsypnye-chtenija",
-        host: "dev.doorway.sys-tix.com",
-        api: "https://dev.doorway.sys-tix.com/api/v1/",
+        // slug: "besprintsypnye-chtenija",
+        // slug_event: "besprintsypnye-chtenija",
+        // host: "dev.doorway.sys-tix.com",
+        // api: "https://dev.doorway.sys-tix.com/api/v1/",
         yandex: 92990926,
         mail_ru: 3318007,
         title_text: " | Ленком",
@@ -64,7 +64,7 @@ let vue = new Vue({
         legend_range: [],
         page_content: [],
         page_text: "",
-        text_page: $("#vue").data("text_page") ? $("#vue").data("text_page") : "",
+        text_page: document.getElementById('vue').dataset.text_page ? document.getElementById('vue').dataset.text_page : "",
         iframe: "",
         sold_modal_staus: false,
         sold_modal_link: "/",
@@ -75,135 +75,19 @@ let vue = new Vue({
     mounted: function() {
         this.touchCart();
 
-        if ($(".afisha").length) {
+        if (document.querySelector(".afisha")) {
             this.takeSeances();
         }
 
-        if ($(".event").length) {
+        if (document.querySelector(".event")) {
             this.takeEvent();
         }
 
-        if ($(".seance").length) {
-            const slf = this;
-
-            this.takeSeance();
-
-            $("body").on("mouseenter", "path.act, circle.act", function(event){
-                const self = event.target;
-            
-                if ($(this).data("seat") != -1) {
-                    slf.hoveredNumber(
-                        $(this).data("id"),
-                        $(this).data("s"),
-                        $(this).data("c"),
-                        parseInt($(this).attr('cx')),
-                        parseInt($(this).attr('cy')),
-                        $(this).attr('transform'),
-                        $(this).data("color")
-                    );
-
-                    if (self.classList.contains('sel')) {
-                        $('text[data-text="' + $(self).attr('data-id') + '"]').show();
-                    }
-                }
-            });
-
-            $("body").on("click", "path.act:not(.m_t), circle.act:not(.m_t), .list__input", function(){
-                const id = $(this).data("id"),
-                    sector = $(this).data("sn"),
-                    row = $(this).data("r"),
-                    seat = $(this).data("s"),
-                    price = $(this).data("p"),
-                    title = $(".seance_top__title").data("title"),
-                    location = $(".seance").data("location"),
-                    date = $(".date_data").data("date"),
-                    index = slf.cart.findIndex(obj => obj.id === id);
-
-                if (index >= 0) {
-                    slf.cart.splice(index, 1);
-
-                    $('[data-id="' + $(this).data("id") + '"]').removeClass("sell");
-                } else {
-                    const cartItem = {
-                        id: id,
-                        sector: sector,
-                        row: row,
-                        seat: seat,
-                        price: price,
-                        title: title,
-                        location: location,
-                        date: date,
-                        seance_id: slf.seance_seance_id,
-                        event_id: slf.seance_event_id,
-                        count: 1
-                    };
-
-                    slf.cart.push(cartItem);
-
-                    if (typeof VK !== 'undefined') {
-                        VK.Goal('add_to_cart');
-                    }
-
-                    if (self.yandex && typeof ym !== 'undefined') {
-                        ym(self.yandex, 'reachGoal', 'add_to_card');
-                    }
-
-                    if (self.mail_ru && typeof _tmr !== 'undefined') {
-                        _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'add_to_card'});
-                    }
-
-                    $('[data-id="' + $(this).data("id") + '"]').addClass("sell");
-                }
-
-                localStorage.setItem("cart", JSON.stringify(slf.cart));
-
-                slf.touchCart();
-            });
-
-            addEventListener('mousemove', slf.tellPos, false);
-            
-            $("body").on("mouseenter", "svg .act, svg .active_sector", function(event, triggered, touchTriggered){
-                if ($(this).hasClass("active_sector")) {
-                    slf.window_is_sector = true;
-                    slf.window_sector = $(this).data("sn");
-                    slf.window_price = $(this).data("p");
-
-                    this.classList.add('hovered');
-                } else {
-                    slf.window_is_sector = false;
-                    slf.window_sector = $(this).data("sn");
-                    slf.window_row = $(this).data("r");
-                    slf.window_seat = $(this).data("s");
-                    slf.window_price = $(this).data("p");
-
-                    $('[data-id="' + $(this).data("id") + '"]').addClass("hovered");
-                }
-                
-                slf.tellPos(event);
-                
-                $(".seance_window").addClass("active");
-            });
-
-            $("body").on("mouseleave", "svg .act, svg .active_sector", function (event, triggered) {
-                if ($(this).hasClass("active_sector")) {
-                    this.classList.remove('hovered');
-                } else {
-                    $('[data-id="' + $(this).data("id") + '"]').removeClass("hovered"); 
-                }
-                
-                $(".seance_window").removeClass("active");
-            });
-
-            $("body").on("click", ".active_sector", function(){
-                if ($(this).data("ss") !== undefined) {
-                    slf.m_sector = $(this).data("ss");
-                } else {
-                    slf.m_sector = $(this).find("circle").data("ss");
-                }
-            });
+        if (document.querySelector(".seance")) {
+            this.takeSeance();  
         }
 
-        if ($(".text_page").length) {
+        if (document.querySelector(".text_page")) {
             this.takeText();
         }
     },
@@ -433,15 +317,15 @@ let vue = new Vue({
 
             const content = await response.data;
 
-            $("#hall").html(content);
+            document.querySelector("#hall").innerHTML = content;
             self.init_scheme();
         },
 
         init_scheme() {
             const self = this,
-                window_width = ($(window).width() / 100) * 90,
-                $scheme = document.querySelector('#hall > svg'),
-                viewBox = $scheme.getAttribute('viewBox').split(' ');
+                window_width = (window.innerWidth / 100) * 90,
+                scheme = document.querySelector('#hall > svg'),
+                viewBox = scheme.getAttribute('viewBox').split(' ');
   
             window.map = L.map('hall', {
                 crs: L.CRS.Simple,
@@ -450,42 +334,32 @@ let vue = new Vue({
                 maxZoom: 4,
                 scrollWheelZoom: false,
             });
-  
-            const instant_width = parseInt(viewBox[2], 10),
-                instant_height = parseInt(viewBox[3], 10);
-            let scale = window.innerWidth * .9 / instant_width;
-
-            if (instant_height > instant_width) {
-                scale = window.innerWidth * .9  / instant_height
-            }
-  
+    
             const width = (window.innerWidth * .8 ),
                 height = (window.innerHeight - 300);
   
-            $('#hall').css('height', height + 100 + 'px');
+            document.querySelector("#hall").style.height = `${height + 100}px`;
   
             L.svgOverlay(
                 '#hall > svg',
                 [[0, 0], [(height), (width)]]
             ).addTo(map);
   
-            $(".leaflet-control-zoom").stick_in_parent({
-                parent: $('#hall'),
-                offset_top: 120
-            });
-  
             map.fitBounds([[0, 0], [(height + 50), (width)]]);
             map.setMaxBounds([[0, 0], [(height + 50), (width)]]);
-  
-            const $svg = $('.leaflet-overlay-pane').find('svg'),
-                $mapPane = $('.leaflet-map-pane');
-  
-            $('#hall').on('mousedown', function (e) {
-                $svg.css('will-change', 'transform');
-                $mapPane.css('will-change', 'transform');
-            }).on('mouseup', function (e) {
-                $svg.css('will-change', 'unset');
-                $mapPane.css('will-change', 'unset');
+                
+            
+            const svg = document.querySelector("body").querySelector("svg"),
+                mapPane = document.querySelector("body").querySelector(".leaflet-map-pane");
+
+            document.querySelector("#hall").addEventListener("mousedown", function(){
+                svg.style.willChange = "transform";
+                mapPane.style.willChange = "transform";
+            });
+
+            document.querySelector("#hall").addEventListener("mouseup", function(){
+                svg.style.willChange = "unset";
+                mapPane.style.willChange = "unset";
             });
 
             if (self.seance_data.tickets) {
@@ -514,9 +388,8 @@ let vue = new Vue({
                     }
 
                     self.m_tickets.push(ticket);
-                    // let sector = $("#hall").find("#" + ticket.ss + " > *")[0],
-                    let sector = $("#hall").find("#" + ticket.ss)[0],
-                        sector_wrp = $("#hall").find("#" + ticket.ss)[0];
+                    let sector = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
+                        sector_wrp = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
 
                     if (sector) {
                         self.setAttributes(sector, {
@@ -570,14 +443,14 @@ let vue = new Vue({
                     }
                     
                 } else if (ticket.sn && ticket.scid && ticket.r && +ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-" && +ticket.s) {
-                    let place = $("#hall").find("#" + ticket.ss + " g:nth-child(" + ticket.r + ") path:nth-child(" + parseInt(ticket.s) + ")")[0],
+                    let place = document.querySelector("body").querySelector(`#hall #${ticket.ss} g:nth-child(${ticket.r}) path:nth-child(${parseInt(ticket.s)})`);
                         seat_class = "act",
-                        cicle = false,
+                        circle = false,
                         color = "color_1";
                     
                     if (!place) {
-                        place = $("#hall").find("#" + ticket.ss + " g:nth-child(" + ticket.r + ") circle:nth-child(" + parseInt(ticket.s) + ")")[0];
-                        cicle = true;
+                        place = document.querySelector("body").querySelector(`#hall #${ticket.ss} g:nth-child(${ticket.r}) circle:nth-child(${parseInt(ticket.s)})`);
+                        circle = true;
                     }
 
                     if (place) {
@@ -596,7 +469,7 @@ let vue = new Vue({
                         if (self.cart.findIndex(obj => obj.id === ticket.id) >= 0) {
                             seat_class += " sell";
 
-                            if (cicle) {
+                            if (circle) {
                                 self.hoveredNumber(
                                     ticket.id,
                                     ticket.s,
@@ -635,7 +508,145 @@ let vue = new Vue({
                 }
             });
 
+            self.addSchemeEvents();            
+
             self.loading = false;
+        },
+
+        addSchemeEvents() {
+            const self = this;
+
+            document.querySelector("body")
+                .querySelectorAll("path.act, circle.act")
+                .forEach(function(el) {
+                    el.addEventListener("mouseenter", function(event){                    
+                        if (this.dataset.s != -1) {
+                            self.hoveredNumber(
+                                this.dataset.id,
+                                this.dataset.s,
+                                this.dataset.c,
+                                parseInt(this.getAttribute('cx')),
+                                parseInt(this.getAttribute('cy')),
+                                this.getAttribute('transform'),
+                                this.dataset.color
+                            );
+        
+                            if (this.classList.contains('sell') && document.querySelector(`text[data-text="${this.dataset.id}"]`)) {
+                                document.querySelector(`text[data-text="${this.dataset.id}"]`).style.display = "block";
+                            }
+                        }
+                    });
+                });
+                
+            document.querySelector("body")
+                .querySelectorAll("path.act:not(.m_t), circle.act:not(.m_t), .list__input")
+                .forEach(function(el) {
+                    el.addEventListener("click", function(){
+                        const id = this.dataset.id,
+                            sector = this.dataset.sn,
+                            row = this.dataset.r,
+                            seat = this.dataset.s,
+                            price = this.dataset.p,
+                            title = document.querySelector(".seance_top__title").dataset.title,
+                            location = document.querySelector(".seance").dataset.location,
+                            date = document.querySelector(".date_data").dataset.date,
+                            index = self.cart.findIndex(obj => obj.id === id);
+        
+                        if (index >= 0) {
+                            self.cart.splice(index, 1);
+                            
+                            document.querySelector(`[data-id="${this.dataset.id}"]`).classList.remove("sell");
+                        } else {
+                            const cartItem = {
+                                id: id,
+                                sector: sector,
+                                row: row,
+                                seat: seat,
+                                price: price,
+                                title: title,
+                                location: location,
+                                date: date,
+                                seance_id: self.seance_seance_id,
+                                event_id: self.seance_event_id,
+                                count: 1
+                            };
+        
+                            self.cart.push(cartItem);
+        
+                            if (typeof VK !== 'undefined') {
+                                VK.Goal('add_to_cart');
+                            }
+        
+                            if (self.yandex && typeof ym !== 'undefined') {
+                                ym(self.yandex, 'reachGoal', 'add_to_card');
+                            }
+        
+                            if (self.mail_ru && typeof _tmr !== 'undefined') {
+                                _tmr.push({ type: 'reachGoal', id: self.mail_ru, goal: 'add_to_card'});
+                            }
+
+                            document.querySelector(`[data-id="${this.dataset.id}"]`).classList.add("sell");
+                        }
+        
+                        localStorage.setItem("cart", JSON.stringify(self.cart));
+        
+                        self.touchCart();
+                    });
+                });
+
+            addEventListener('mousemove', self.tellPos, false);
+
+            document.querySelector("body")
+                .querySelectorAll("svg .act, svg .active_sector")
+                .forEach(function(el) {
+                    el.addEventListener("mouseenter", function(event){
+                        if (this.classList.contains("active_sector")) {
+                            self.window_is_sector = true;
+                            self.window_sector = this.dataset.sn;
+                            self.window_price = this.dataset.p;
+        
+                            this.classList.add('hovered');
+                        } else {
+                            self.window_is_sector = false;
+                            self.window_sector = this.dataset.sn;
+                            self.window_row = this.dataset.r;
+                            self.window_seat = this.dataset.s;
+                            self.window_price = this.dataset.p;
+                            
+                            document.querySelector(`[data-id="${this.dataset.id}"]`).classList.add("hovered");
+                        }
+                        
+                        self.tellPos(event);
+                        
+                        document.querySelector(".seance_window").classList.add("active");
+                    });
+                });
+
+            document.querySelector("body")
+                .querySelectorAll("svg .act, svg .active_sector")
+                .forEach(function(el) {
+                    el.addEventListener("mouseleave", function(event){
+                        if (this.classList.contains("active_sector")) {
+                            this.classList.remove('hovered');
+                        } else {
+                            document.querySelector(`[data-id="${this.dataset.id}"]`).classList.remove("hovered");
+                        }
+                        
+                        document.querySelector(".seance_window").classList.remove("active");
+                    });
+                });
+
+            document.querySelector("body")
+                .querySelectorAll(".active_sector")
+                .forEach(function(el) {
+                    el.addEventListener("click", function(event){
+                        if (this.dataset.ss !== undefined) {
+                            self.m_sector = this.dataset.ss;
+                        } else {
+                            self.m_sector = this.querySelector("circle").dataset.ss;
+                        }
+                    });
+                });
         },
 
         makeLegend() {
@@ -656,21 +667,43 @@ let vue = new Vue({
         legendToogle(index) {
             const id = index + 1;
 
-            if (!$(".legend__el.active").length) {
-                $("#hall .act, .map_place").addClass("price__off");
+            if (!document.querySelector(".legend__el.active")) {
+                document.querySelectorAll("#hall .act, .map_place")
+                    .forEach(function(el) {
+                        el.classList.add("price__off");
+                    });
             }
 
-            if ($(".legend__el:nth-child(" + id + ")").hasClass("active")) {
-                $("#hall .act[data-color=color_" + id + "]").addClass("price__off");
+            if (document.querySelector(`.legend__el:nth-child(${id})`).classList.contains("active")) {
+                document.querySelectorAll(`#hall .act[data-color=color_${id}]`)
+                    .forEach(function(el) {
+                        el.classList.add("price__off");
+                    });
             } else {
-                $("#hall .act[data-color=color_" + id + "]").removeClass("price__off"); 
+                document.querySelectorAll(`#hall .act[data-color=color_${id}]`)
+                    .forEach(function(el) {
+                        el.classList.remove("price__off");
+                    });
             }
 
-            $(".legend__el:nth-child(" + id + ")").toggleClass("active");
+            document.querySelectorAll(`.legend__el:nth-child(${id})`)
+                .forEach(function(el) {
+                    el.classList.toggle("active");
+                });
 
-            if ($(".legend__el.active").length == 0 || $(".legend__el.active").length == 5) {
-                $(".legend__el").removeClass("active");
-                $("#hall .act, .map_place").removeClass("price__off"); 
+            if (
+                document.querySelectorAll(".legend__el.active").length == 0
+                || document.querySelectorAll(".legend__el.active").length == 5
+            ) {
+                document.querySelectorAll(".legend__el")
+                    .forEach(function(el) {
+                        el.classList.remove("active");
+                    });
+
+                document.querySelectorAll("#hall .act, .map_place")
+                    .forEach(function(el) {
+                        el.classList.remove("price__off");
+                    });
             }
         },
 
@@ -687,15 +720,17 @@ let vue = new Vue({
         },
 
         hoveredNumber(id, s, dc, cx, cy, tr, color) {
-            if ($("#hall[data-text='" + id + "']").length > 0 || !s)
+            if (document.querySelector(`#hall[data-text='${id}]`) || !s || !document.querySelector("#hall circle")) {
                 return;
-            let $text = document.createElementNS('http://www.w3.org/2000/svg', 'text'),
+            }
+    
+            let text = document.createElementNS('http://www.w3.org/2000/svg', 'text'),
                 tr_x = 0,
                 tr_y = 0,
                 left, 
                 top, 
                 font_size,
-                radius = parseInt($("circle[data-id=" + id + "]").css("r")),
+                radius = +document.querySelector("#hall circle").getAttribute("r"),
                 left_1 = 3.4,
                 top_1 = 3,
                 font_size_1 = 7,
@@ -745,23 +780,23 @@ let vue = new Vue({
             }
 
             if (!isNaN(cx) && !isNaN(cy) && !isNaN(dc)) {
-                $text.setAttribute('data-text', id);
-                $text.setAttribute('class', "map_place map_place-" + dc);
-                $text.setAttribute('x', cx + tr_x - left);
-                $text.setAttribute('y', cy + tr_y + top);
-                $text.setAttribute('style', 'font-size: ' + font_size + 'px;');
-                $text.setAttribute('data-color', color);
-                $text.innerHTML = s;
+                text.setAttribute('data-text', id);
+                text.setAttribute('class', "map_place map_place-" + dc);
+                text.setAttribute('x', cx + tr_x - left);
+                text.setAttribute('y', cy + tr_y + top);
+                text.setAttribute('style', 'font-size: ' + font_size + 'px;');
+                text.setAttribute('data-color', color);
+                text.innerHTML = s;
 
-                let $check = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                let check = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
-                $check.setAttribute('data-path', id);
-                $check.setAttribute('style', 'stroke-width: 2; fill: #000000; stroke: #000000; opacity: 1; pointer-events: none !important; display: none;');
-                $check.setAttribute('transform', 'translate('+(cx-3)+', '+(cy-2)+') scale(0.65)');
-                $check.setAttribute('d', "M10.5793 1.13952L3.7222 7.99666L0.579346 4.8538L1.38506 4.04809L3.7222 6.37952L9.77363 0.333801L10.5793 1.13952Z");
+                check.setAttribute('data-path', id);
+                check.setAttribute('style', 'stroke-width: 2; fill: #000000; stroke: #000000; opacity: 1; pointer-events: none !important; display: none;');
+                check.setAttribute('transform', 'translate('+(cx-3)+', '+(cy-2)+') scale(0.65)');
+                check.setAttribute('d', "M10.5793 1.13952L3.7222 7.99666L0.579346 4.8538L1.38506 4.04809L3.7222 6.37952L9.77363 0.333801L10.5793 1.13952Z");
 
-                $("#hall svg")[0].appendChild($text);
-                $("#hall svg")[0].appendChild($check);
+                document.querySelector("#hall svg").appendChild(text);
+                document.querySelector("#hall svg").appendChild(check);
             }
         },
         touchCart() {
@@ -781,7 +816,11 @@ let vue = new Vue({
         },
         clearCart() {
             localStorage.setItem("cart", "");
-            $(".sell").removeClass("sell");
+
+            document.querySelectorAll(".sell")
+                .forEach(function(el) {
+                    el.classList.remove("sell");
+                });
 
             this.m_tickets.forEach((ticket) => {  
                 ticket.count = 0;
@@ -792,8 +831,8 @@ let vue = new Vue({
             this.touchCart();
         },
         tellPos(p) {
-            const height = parseInt($(".seance_window").css("height")),
-                width = parseInt($(".seance_window").css("max-width"));
+            const height = document.querySelector(".seance_window").offsetHeight,
+                width = document.querySelector(".seance_window").offsetWidth;
 
             if (!p.clientX && !p.clientY && window.hoveredEm) {
                 const bounds = window.hoveredEm.getBoundingClientRect();
@@ -802,10 +841,8 @@ let vue = new Vue({
                 p.clientY = bounds.y + bounds.height / 2;
             }
 
-            $(".seance_window").css({
-                left: p.clientX - width / 2,
-                top: p.clientY - height - 20
-            });
+            document.querySelector(".seance_window").style.left = p.clientX - width / 2;
+            document.querySelector(".seance_window").style.top = p.clientY - height - 20;
         },
         delTicket(id) {
             const index = this.cart.findIndex(obj => obj.id === id);
@@ -821,33 +858,36 @@ let vue = new Vue({
         },
         makeOrder() {
             const self = this;
-            let name = $('#order_form input[name="name"]').val(),
-                phone = $('#order_form input[name="phone"]').val(),
-                email = $('#order_form input[name="email"]').val(),
-                comment = $('#order_form textarea[name="comment"]').val(),
-                pay_type = $('#order_form input[name="pay_type"]').val(),
-                agree = $("#agree").is(":checked"),
+            let name = document.querySelector('#order_form input[name="name"]').value,
+                phone = document.querySelector('#order_form input[name="phone"]').value,
+                email = document.querySelector('#order_form input[name="email"]').value,
+                comment = document.querySelector('#order_form textarea[name="comment"]').value,
+                pay_type = document.querySelector('#order_form input[name="pay_type"]').value,
+                agree = document.querySelector('#agree').checked,
                 error = false;
 
-            $('.error').removeClass('error');
+            document.querySelectorAll(".error")
+                .forEach(function(el) {
+                    el.classList.remove("error");
+                });
 
             if (!name) {
-                $('#order_form input[name="name"]').parent().addClass('error');
+                document.querySelector('#order_form input[name="name"]').parentElement.classList.add("error");
                 error = true;
             }
 
             if (!phone) {
-                $('#order_form input[name="phone"]').parent().addClass('error');
+                document.querySelector('#order_form input[name="phone"]').parentElement.classList.add("error");
                 error = true;
             } 
 
             if (!email) {
-                $('#order_form input[name="email"]').parent().addClass('error');
+                document.querySelector('#order_form input[name="email"]').parentElement.classList.add("error");
                 error = true;
             }
 
             if (!agree) {
-                $('#order_form input[name="agree"]').parent().addClass('error');
+                document.querySelector('#order_form input[name="agree"]').parentElement.classList.add("error");
                 error = true;
             }
 
@@ -910,9 +950,7 @@ let vue = new Vue({
 
                            self.clearCart();
 
-                           $('html').animate({
-                               scrollTop: 0
-                           }, 400);
+                           window.scrollTo({top: 0, behavior: 'smooth'});
                         }
 
                         if (typeof VK !== 'undefined') {
@@ -945,9 +983,9 @@ let vue = new Vue({
                 seat = ticket.s,
                 price = ticket.p,
                 qty = ticket.qty,
-                title = $(".seance_top__title").data("title"),
-                location = $(".seance").data("location"),
-                date = $(".date_data").data("date"),
+                title = document.querySelector(".seance_top__title").dataset.title,
+                location = document.querySelector(".seance").dataset.location,
+                date = document.querySelector(".date_data").dataset.date,
                 index = self.cart.findIndex(obj => obj.id === id),
                 m_index = self.m_tickets.findIndex(obj => obj.id === id),
                 sell = true;
@@ -1005,10 +1043,12 @@ let vue = new Vue({
                 self.m_tickets[m_index].count = 1;
             }
 
-            if (sell) {
-                $('[data-id="' + id + '"]').addClass("sell");
-            } else {
-                $('[data-id="' + id + '"]').removeClass("sell");
+            if (document.querySelector(`[data-id="${id}"]`)) {
+                if (sell) {
+                    document.querySelector(`[data-id="${id}"]`).classList.add("sell");
+                } else {
+                    document.querySelector(`[data-id="${id}"]`).classList.remove("sell");
+                }
             }
 
             localStorage.setItem("cart", JSON.stringify(self.cart));
