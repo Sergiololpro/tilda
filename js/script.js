@@ -49,6 +49,7 @@ let vue = new Vue({
         hall_map: "",
         cart: [],
         cart_summ: 0,
+        cart_count: 0,
         window_is_sector: false,
         window_sector: "",
         window_row: "",
@@ -892,8 +893,8 @@ let vue = new Vue({
                                             Items: [
                                                 {
                                                     label: "Услуга консьерж сервиса по заказу 1",
-                                                    quantity: self.cart_summ,
-                                                    amount: self.cart_count,
+                                                    quantity: self.cart_count,
+                                                    amount: self.cart_summ,
                                                     vat: 0,
                                                 }
                                             ],
