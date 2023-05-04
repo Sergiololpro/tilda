@@ -766,9 +766,11 @@ let vue = new Vue({
             }
 
             this.cart_summ = 0;
+            self.cart_count = 0;
 
             this.cart.forEach((ticket) => {
                 this.cart_summ += ticket.price * ticket.count;
+                this.cart_count += ticket.count;
             })
         },
         clearCart() {
