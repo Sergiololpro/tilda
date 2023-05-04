@@ -7,26 +7,26 @@ let vue = new Vue({
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
-        slug: "krokus_siti_holl",
-        host: "crocus-holl.com",
-        api: "https://crocus-holl.com/api/v1/",
+        // slug: "krokus_siti_holl",
+        // host: "crocus-holl.com",
+        // api: "https://crocus-holl.com/api/v1/",
         // slug: "radisson_royal",
         // host: "radissontickets.com",
         // api: "https://radissontickets.com/api/v1/",
         // slug: "moskovskij_planetarij",
         // host: "planetariym.com",
         // api: "https://planetariym.com/api/v1/",
-        // slug: "besprintsypnye-chtenija",
-        // slug_event: "besprintsypnye-chtenija",
-        // host: "dev.doorway.sys-tix.com",
-        // api: "https://dev.doorway.sys-tix.com/api/v1/",
-        yandex: 92990926,
-        mail_ru: 3318007,
+        slug: "besprintsypnye-chtenija",
+        slug_event: "besprintsypnye-chtenija",
+        host: "dev.doorway.sys-tix.com",
+        api: "https://dev.doorway.sys-tix.com/api/v1/",
+        yandex: "",
+        mail_ru: "",
         title_text: " | Ленком",
         map_view: "scheme",
         info_text: "",
         info_color: "#4db483",
-        // tilda_widget_id: "pk_e40712c97f8fbd9f2c223a2c20b51",
+        tilda_widget_id: "pk_e40712c97f8fbd9f2c223a2c20b51",
         tilda_widget_deescription: "Описание к оплате",
         show_map_switch: true,
 
@@ -875,31 +875,48 @@ let vue = new Vue({
                         if (this.tilda_widget_id) {
                             let widget = new cp.CloudPayments();
 
-                            widget.pay('auth',
-                                {
-                                    publicId: this.tilda_widget_id,
-                                    description: this.tilda_widget_deescription,
-                                    amount: this.cart_summ,
-                                    currency: 'RUB',
-                                    invoiceId: resp.order_id,
-                                    email: email,
-                                    payer: { 
-                                        firstName: name,
-                                        phone: phone,
-                                    }
+                            widget.pay('auth', {
+                                publicId: this.tilda_widget_id,
+                                description: this.tilda_widget_deescription,
+                                amount: this.cart_summ,
+                                currency: 'RUB',
+                                invoiceId: resp.order_id,
+                                email: email,
+                                payer: { 
+                                    firstName: name,
+                                    phone: phone,
                                 },
-                                {
-                                    onSuccess: () => {
-                                        setTimeout(() => {
-                                            this.clearCart();
-                                            window.location.href = "/order_success";
-                                        }, 1000);
-                                    },
-                                    onFail: () => {
-        
+                                data: {
+                                    CloudPayments: {
+                                        CustomerReceipt: {
+                                            Items: [
+                                                {
+                                                    label: "Услуга консьерж сервиса по заказу 1",
+                                                    quantity: self.cart_summ,
+                                                    amount: self.cart_count,
+                                                    vat: 0,
+                                                }
+                                            ],
+                                            calculationPlace: self.host,
+                                            email: email,
+                                            phone: phone,
+                                            amounts: {
+                                                electronic: self.cart_summ
+                                            }
+                                        }
                                     }
                                 }
-                            )
+                            }, {
+                                onSuccess: () => {
+                                    setTimeout(() => {
+                                        this.clearCart();
+                                        window.location.href = "/order_success";
+                                    }, 1000);
+                                },
+                                onFail: () => {
+    
+                                }
+                            });
                         } else {
                            // window.location.href = response.message
 
