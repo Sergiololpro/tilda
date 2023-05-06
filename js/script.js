@@ -96,19 +96,19 @@ let vue = new Vue({
         seancesGroups: function() {
             if (this.seances.length == 0) return {};
 
-            return this.seances.reduce((r, a) => {
-                r[a.date] = r[a.date] || [];
-                r[a.date].push(a);
-                return r;
+            return this.seances.reduce((grouped, seance) => {
+                grouped[seance.date] = grouped[seance.date] || [];
+                grouped[seance.date].push(seance);
+                return grouped;
             }, Object.create(null));
         },
         eventGroups: function() {
             if (this.event_data == 0) return {};
 
-            return this.event_data.seances.reduce((r, a) => {
-                r[a.starts_at] = r[a.starts_at] || [];
-                r[a.starts_at].push(a);
-                return r;
+            return this.event_data.seances.reduce((grouped, seance) => {
+                grouped[seance.starts_at] = grouped[seance.starts_at] || [];
+                grouped[seance.starts_at].push(seance);
+                return grouped;
             }, Object.create(null));
         },
         seanceDay: function() {
@@ -127,10 +127,12 @@ let vue = new Vue({
             return (date) => this.week_short[new Date(date).getDay()];
         },
         seanceHour: function() {
-            return (date) => `${new Date(date).getUTCHours()}:${('0' + new Date(date).getMinutes()).slice(-2)}`;
+            return (date) =>
+                `${new Date(date).getUTCHours()}:${('0' + new Date(date).getMinutes()).slice(-2)}`;
         },
         seanceHour2: function() {
-            return (date) => `${new Date(date).getHours()}:${('0' + new Date(date).getMinutes()).slice(-2)}`;
+            return (date) =>
+                `${new Date(date).getHours()}:${('0' + new Date(date).getMinutes()).slice(-2)}`;
         },
         seanceImage: function() {
             return (seance) => `background-image: url(${seance.image});`;
@@ -151,22 +153,22 @@ let vue = new Vue({
             return (month) => parseInt(month.split("-")[0]);
         },
         groupTickets: function() {            
-            return Object.values(this.cart).reduce((rv, x) => {
-                (rv[x["seance_id"]] = rv[x["seance_id"]] || []).push(x);
-                return rv;
-              }, {});
+            return Object.values(this.cart).reduce((groupedTickets, ticket) => {
+                (groupedTickets[ticket["seance_id"]] = groupedTickets[ticket["seance_id"]] || []).push(ticket);
+                return groupedTickets;
+            }, {});
         },
         textPageTitle: function() {
             return this.page_content.seo_title ? this.page_content.seo_title : this.page_content.banner_title
         },
     },
     methods:{
-        async takeinfoFromCache(url, data) {
-            const row = JSON.stringify(data);
+        async takeinfoFromCache(url, searchParrams) {
+            const row = JSON.stringify(searchParrams);
 
             if (!this.cache_requests.has(row)) {
                 const response = await axios.get(url, {
-                    params: data
+                    params: searchParrams
                 });
 
                 const content = await response.data;
@@ -179,7 +181,7 @@ let vue = new Vue({
             return this.cache_requests.get(row);  
         },
         async takeSeances(month, append) {
-            let data = {
+            let searchParrams = {
                 host_name: this.host
             };
 
@@ -188,16 +190,16 @@ let vue = new Vue({
             if (month) {
                 this.activeMonth = this.navMonth = month;
                 this.nextMonth = this.months[this.months.indexOf(month) + 1];
-                data.month = this.activeMonth; 
+                searchParrams.month = this.activeMonth; 
             }
 
             if (this.slug_event) {
-                data.slug_event = this.slug_event;
+                searchParrams.slug_event = this.slug_event;
             } else {
-                data.place_slug = this.slug; 
+                searchParrams.place_slug = this.slug; 
             }
 
-            const response = await this.takeinfoFromCache(this.api + "events_tilda/", data);
+            const response = await this.takeinfoFromCache(this.api + "events_tilda/", searchParrams);
 
             this.seances = append ? this.seances.concat(response.results) : response.results;
             this.loading = false;
@@ -210,7 +212,7 @@ let vue = new Vue({
             }
         },
 
-        async takeEvent(month, append) {
+        async takeEvent() {
             this.loading = true;
 
             const response = await axios.get(`${this.api}event_tilda/`, {
@@ -281,14 +283,10 @@ let vue = new Vue({
             const content = await response.data;
 
             document.querySelector("#hall").innerHTML = content;
-            this.init_scheme();
+            this.initScheme();
         },
 
-        init_scheme() {
-            const window_width = (window.innerWidth / 100) * 90,
-                scheme = document.querySelector('#hall > svg'),
-                viewBox = scheme.getAttribute('viewBox').split(' ');
-  
+        initScheme() {
             window.map = L.map('hall', {
                 crs: L.CRS.Simple,
                 zoom: 1,
@@ -297,20 +295,19 @@ let vue = new Vue({
                 scrollWheelZoom: false,
             });
     
-            const width = (window.innerWidth * .8 ),
-                height = (window.innerHeight - 300);
+            const innerWidth = (window.innerWidth * .8 ),
+                innerHeight = (window.innerHeight - 300);
   
-            document.querySelector("#hall").style.height = `${height + 100}px`;
+            document.querySelector("#hall").style.height = `${innerHeight + 100}px`;
   
             L.svgOverlay(
                 '#hall > svg',
-                [[0, 0], [(height), (width)]]
+                [[0, 0], [(innerHeight), (innerWidth)]]
             ).addTo(map);
   
-            map.fitBounds([[0, 0], [(height + 50), (width)]]);
-            map.setMaxBounds([[0, 0], [(height + 50), (width)]]);
+            map.fitBounds([[0, 0], [(innerHeight + 50), (innerWidth)]]);
+            map.setMaxBounds([[0, 0], [(innerHeight + 50), (innerWidth)]]);
                 
-            
             const svg = document.querySelector("body").querySelector("svg"),
                 mapPane = document.querySelector("body").querySelector(".leaflet-map-pane");
 
@@ -348,6 +345,7 @@ let vue = new Vue({
                     }
 
                     this.m_tickets.push(ticket);
+
                     let sector = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
                         sector_wrp = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
 
@@ -680,7 +678,11 @@ let vue = new Vue({
         },
 
         hoveredNumber(id, s, dc, cx, cy, tr, color) {
-            if (document.querySelector(`#hall[data-text='${id}]`) || !s || !document.querySelector("#hall circle")) {
+            if (
+                document.querySelector(`#hall[data-text='${id}]`)
+                || !s
+                || !document.querySelector("#hall circle")
+            ) {
                 return;
             }
     
@@ -767,7 +769,7 @@ let vue = new Vue({
             }
 
             this.cart_summ = 0;
-            self.cart_count = 0;
+            this.cart_count = 0;
 
             this.cart.forEach((ticket) => {
                 this.cart_summ += ticket.price * ticket.count;
@@ -893,16 +895,16 @@ let vue = new Vue({
                                             Items: [
                                                 {
                                                     label: "Услуга консьерж сервиса по заказу 1",
-                                                    quantity: self.cart_count,
-                                                    amount: self.cart_summ,
+                                                    quantity: this.cart_count,
+                                                    amount: this.cart_summ,
                                                     vat: 0,
                                                 }
                                             ],
-                                            calculationPlace: self.host,
+                                            calculationPlace: this.host,
                                             email: email,
                                             phone: phone,
                                             amounts: {
-                                                electronic: self.cart_summ
+                                                electronic: this.cart_summ
                                             }
                                         }
                                     }
