@@ -775,22 +775,22 @@ let vue = new Vue({
         //         this.cart_count += ticket.count;
         //     })
         // },
-        // clearCart() {
-        //     localStorage.setItem("cart", "");
+        clearCart() {
+            localStorage.setItem("cart", "");
 
-        //     document.querySelectorAll(".sell")
-        //         .forEach(function(el) {
-        //             el.classList.remove("sell");
-        //         });
+            document.querySelectorAll(".sell")
+                .forEach(function(el) {
+                    el.classList.remove("sell");
+                });
 
-        //     this.m_tickets.forEach((ticket) => {  
-        //         ticket.count = 0;
-        //     });
+            this.m_tickets.forEach((ticket) => {  
+                ticket.count = 0;
+            });
 
-        //     this.m_sector = '';
+            this.m_sector = '';
 
-        //     this.touchCart();
-        // },
+            this.touchCart();
+        },
         tellPos(p) {
             const height = document.querySelector(".seance_window").offsetHeight,
                 width = document.querySelector(".seance_window").offsetWidth;
