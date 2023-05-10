@@ -254,7 +254,6 @@ let vue = new Vue({
                     || this.seance_data.map_api_data.hall.hall_map;
             }
 
-
             if (
                 this.seance_data.hallmaps_settings
                 && this.seance_data.hallmaps_settings[0]
@@ -674,7 +673,7 @@ let vue = new Vue({
         setMultiplyAttributes(elements, attrs) {
             elements.forEach((element) => {
               this.setAttributes(element, attrs);
-            })
+            });
         },
 
         hoveredNumber(id, s, dc, cx, cy, tr, color) {
