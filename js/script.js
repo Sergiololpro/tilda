@@ -760,21 +760,21 @@ let vue = new Vue({
                 document.querySelector("#hall svg").appendChild(check);
             }
         },
-        touchCart() {
-            this.cart = [];
+        // touchCart() {
+        //     this.cart = [];
 
-            if (localStorage.getItem("cart")) {
-                this.cart = JSON.parse(localStorage.getItem("cart"));
-            }
+        //     if (localStorage.getItem("cart")) {
+        //         this.cart = JSON.parse(localStorage.getItem("cart"));
+        //     }
 
-            this.cart_summ = 0;
-            this.cart_count = 0;
+        //     this.cart_summ = 0;
+        //     this.cart_count = 0;
 
-            this.cart.forEach((ticket) => {
-                this.cart_summ += ticket.price * ticket.count;
-                this.cart_count += ticket.count;
-            })
-        },
+        //     this.cart.forEach((ticket) => {
+        //         this.cart_summ += ticket.price * ticket.count;
+        //         this.cart_count += ticket.count;
+        //     })
+        // },
         clearCart() {
             localStorage.setItem("cart", "");
 
