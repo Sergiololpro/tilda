@@ -1362,7 +1362,7 @@ text[data-text].price__off {
 #hall .active_sector {
     /* fill: #dd4b24;
     stroke: #dd4b24; */
-    /* pointer-events: all !important; */
+    pointer-events: all !important;
     opacity: 1;
     transition: opacity .3s ease-out;
 }
