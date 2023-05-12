@@ -162,7 +162,7 @@ let vue = new Vue({
             return this.page_content.seo_title ? this.page_content.seo_title : this.page_content.banner_title
         },
     },
-    methods:{
+    methods: {
         async takeinfoFromCache(url, searchParrams) {
             const row = JSON.stringify(searchParrams);
 
