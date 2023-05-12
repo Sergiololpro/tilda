@@ -21,7 +21,10 @@
         </a>
         <span>&#8594;</span>
         <template v-if="seance_data.seances_data">
-          <template v-for="seance in seance_data.seances_data.seances">
+          <template
+            v-for="seance in seance_data.seances_data.seances"
+            :key="seance.starts_at"
+          >
             <span
               v-if="seance.id == seance_seance_id"
               :data-date="seance.starts_at"
@@ -50,6 +53,7 @@
             <div class="seance_top__dates">
                 <div
                   v-for="seance in seance_data.seances_data.seances"
+                  :key="seance.starts_at"
                   class="seance_top__date"
                   @click="seance_list = !seance_list"
                 >
@@ -65,7 +69,10 @@
                   :class="{ active: seance_list }"
                 >
                   <template v-if="seance_data.seances_data.seances.length > 1">
-                    <template v-for="seance in seance_data.seances_data.seances">
+                    <template
+                      v-for="seance in seance_data.seances_data.seances"
+                      :key="seance.starts_at"
+                    >
                       <div
                         class="seance_top__el"
                         :class="{ active: seance.id == seance_seance_id }"
@@ -108,7 +115,12 @@
 
       <div class="map_wrp" :class="{ active: map_view == 'scheme' }">
         <div v-if="legend_range.length" class="legend">
-          <div v-for="(legend, index) in legend_range" class="legend__el" @click="legendToogle(index)">
+          <div
+            v-for="legend in legend_range"
+            :key="legend"
+            class="legend__el"
+            @click="legendToogle(index)"
+          >
             <div class="legend__circle"></div>
             {{ legend }} руб +
           </div>
@@ -131,7 +143,10 @@
           <div v-if="m_sector" class="m_tickets">
             <div class="m_tickets__close" @click="m_sector = ''">&#215;</div>
             <div class="m_tickets__title">
-              <template v-for="ticket in m_tickets">
+              <template
+                v-for="ticket in m_tickets"
+                :key="ticket.id"
+              >
                 <span v-if="ticket.ss == m_sector">{{ ticket.sn }}</span>
               </template>
             </div>
@@ -142,7 +157,11 @@
               <div class="m_tickets__col">Вам нужно</div>
             </div>
             <div class="m_tickets__els">
-              <div v-for="ticket in m_tickets" class="m_tickets__el">
+              <div
+                v-for="ticket in m_tickets"
+                :key="ticket.id"
+                class="m_tickets__el"
+              >
                 <div v-if="ticket.ss == m_sector" class="m_tickets__wrp">
                   <div class="m_tickets__col">{{ ticket.qty }}</div>
                   <div class="m_tickets__col">{{ ticket.p }} руб.</div>
@@ -178,7 +197,10 @@
             </div>
             <div class="list__wrp">
               <div class="list__sector">
-                <template v-for="(sector, index) in list_tickets">
+                <template
+                  v-for="(sector, index) in list_tickets"
+                  :key="sector.title"
+                >
                   <template>
                     
                     <div class="list__row list__row-sector">
@@ -193,7 +215,11 @@
                     </div>
                     <div class="list__rows" :class="{ active: sector.status }">
                       <template v-if="sector.ml">
-                        <div v-for="m_row in sector" class="list__row list__row-seat">
+                        <div
+                          v-for="m_row in sector"
+                          :key="m_row.title"
+                          class="list__row list__row-seat"
+                        >
                           <div class="list__col list__col-arrow">↳</div>
                           <div class="list__col list__col-count">{{ m_row.qty }}</div>
                           <div class="list__col list__col-price">{{ m_row.p }} руб</div>
@@ -215,7 +241,10 @@
                         </div>
                       </template>
                       <template v-else>
-                        <template v-for="(row, id) in sector">
+                        <template
+                          v-for="(row, id) in sector"
+                          :key="row.title"
+                        >
                           <template v-if="row && row.length">
                             <div class="list__row list__row-row">
                               <div class="list__col list__col-sector">Ряд {{ row[0].r }}</div>
@@ -224,7 +253,11 @@
                               <div class="list__col list__col-open" @click="toggleRow(index, id)">Места</div>
                             </div>
                             <div class="list__places" :class="{ active: row.status }">
-                              <div v-for="place in row" class="list__row list__row-seat">
+                              <div
+                                v-for="place in row"
+                                :key="place.id"
+                                class="list__row list__row-seat"
+                              >
                                 <div class="list__col list__col-arrow">↳</div>
                                 <div class="list__col list__col-count">Место {{ place.s }}</div>
                                 <div class="list__col list__col-price">{{ place.p }} руб</div>
@@ -276,7 +309,11 @@
             </template>
           </div>
           <div class="bottom_cart_mobile__tickets">
-            <div v-for="ticket in cart" class="bottom_cart_mobile__ticket">
+            <div
+              v-for="ticket in cart"
+              :key="ticket.id"
+              class="bottom_cart_mobile__ticket"
+            >
               <div class="bottom_cart_mobile__title">{{ ticket.title }}</div>
               <div class="bottom_cart_mobile__row">
                 <div class="bottom_cart_mobile__left">

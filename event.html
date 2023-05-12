@@ -57,7 +57,11 @@
           ></div>
         </div>
         <div class="event__seances">
-          <div v-for="(seances, day) in eventGroups" class="afisha__date_wrp">
+          <div
+            v-for="(seances, day) in eventGroups"
+            :key="seances[0].starts_at"
+            class="afisha__date_wrp"
+          >
             <div class="afisha__date">
               <div
                 class="afisha__number"
@@ -71,7 +75,11 @@
               </div>
             </div>
             <div class="afisha__els">
-              <div v-for="seance in seances" class="afisha__el">
+              <div
+                v-for="seance in seances"
+                :key="seance.starts_at"
+                class="afisha__el"
+              >
                 <div class="afisha__time">{{ seanceHour2(seance.starts_at) }}</div>
                 <div class="afisha__center">
                   <div class="afisha__left">

@@ -21,7 +21,11 @@
       <template v-if="cart_summ">
         <h1 class="order__h1">Оформление заказа</h1>
         <div class="order__title">Ваши билеты:</div>
-        <div v-for="tickets in groupTickets" class="order_el__cart_wrp">
+        <div
+          v-for="tickets in groupTickets"
+          :key="tickets[0].date"
+          class="order_el__cart_wrp"
+        >
             <div class="order_el__date">
                 <div class="order_el__number">{{ seanceDay(tickets[0].date) }}</div>
                 <div class="order_el__r">
@@ -30,7 +34,11 @@
                 </div>
             </div>
             <div class="order_el__els">
-                <div v-for="(ticket, index) in tickets" class="order_el__el">
+                <div
+                  v-for="(ticket, index) in tickets"
+                  :key="ticket.id"
+                  class="order_el__el"
+                >
                     <div class="order_el__left">
                         <div class="order_el__id">{{ index + 1 }}</div>
                         <div class="order_el__time">
@@ -58,28 +66,28 @@
         <form id="order_form" class="order__wp">
           <div class="order__left">
             <div class="order__title">Контактные данные</div>
-            <div class="order__input">
+            <div class="order__input" :class="{ error: orderNameError }">
               <label class="order__label" for="name">ФИО<span>*</span></label>
-              <input class="order__inp" id="name" name="name" placeholder="Иван Иванов" type="text" required="required">
+              <input class="order__inp" v-model="orderName" id="name" name="name" placeholder="Иван Иванов" type="text" required="required">
               <div class="order__alert">Проверьте правильность заполнения поля</div>
             </div>
-            <div class="order__input">
+            <div class="order__input" :class="{ error: orderPhoneError }">
               <label class="order__label" for="phone">Телефон<span>*</span></label>
-              <input class="order__inp" id="phone" name="phone" placeholder="+7 (000)) 000-00-00" type="text" required="required">
+              <input class="order__inp" v-model="orderPhone" id="phone" name="phone" placeholder="+7 (000)) 000-00-00" type="text" required="required">
               <div class="order__alert">Проверьте правильность заполнения поля</div>
             </div>
-            <div class="order__input">
+            <div class="order__input" :class="{ error: orderEmailError }">
               <label class="order__label" for="email">Email<span>*</span></label>
-              <input class="order__inp" id="email" name="email" placeholder="test@email.com" type="text" required="required">
+              <input class="order__inp" v-model="orderEmail" id="email" name="email" placeholder="test@email.com" type="text" required="required">
               <div class="order__alert">Проверьте правильность заполнения поля</div>
             </div>
-            <textarea class="order__textaea" name="comment" id="comment" placeholder="Комментарий"></textarea>
+            <textarea class="order__textaea" v-model="orderComment" name="comment" id="comment" placeholder="Комментарий"></textarea>
             <div class="order__txt">Поля, отмеченные звездочками, обязательны для заполнения</div>
           </div>
           <div class="order__right">
             <div class="order__title">Способы оплаты</div>
             <div class="order_checkbox">
-              <input id="2" value="2" name="pay_type" type="radio" checked>
+              <input id="2" v-model="orderPayType" value="2" name="pay_type" type="radio">
               <label for="2">
                   <span>Картой VISA / MASTERCARD</span>
                   <span class="order_checkbox__txt">После оформления заказа, на ваш email придет ссылка на оплату билетов. По ссылке вы будете переведены на безопасную страницу банка для ввода данных карты. После успешной оплаты вы получаете чек, гарантирующий получение билетов.</span>
@@ -87,8 +95,8 @@
             </div>
           </div>
           <div class="order__bottom">
-            <div class="order_checkbox">
-              <input id="agree" value="agree" name="agree" type="checkbox" checked>
+            <div class="order_checkbox" :class="{ error: orderAgreeError }">
+              <input id="agree" v-model="orderAgree" value="agree" name="agree" type="checkbox">
               <label for="agree">
                   <span>Нажимая на кнопку «Оформить заказ», я даю согласие на обработку персональных данных и на условия оферты</span>
               </label>

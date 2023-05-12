@@ -7,19 +7,19 @@ let vue = new Vue({
         // slug: "mht_im_a_p_chehova",
         // host: "mxat-theatre.com",
         // api: "https://mxat-theatre.com/api/v1/",
-        // slug: "krokus_siti_holl",
-        // host: "crocus-holl.com",
-        // api: "https://crocus-holl.com/api/v1/",
+        slug: "krokus_siti_holl",
+        host: "crocus-holl.com",
+        api: "https://crocus-holl.com/api/v1/",
         // slug: "radisson_royal",
         // host: "radissontickets.com",
         // api: "https://radissontickets.com/api/v1/",
         // slug: "moskovskij_planetarij",
         // host: "planetariym.com",
         // api: "https://planetariym.com/api/v1/",
-        slug: "besprintsypnye-chtenija",
-        slug_event: "besprintsypnye-chtenija",
-        host: "dev.doorway.sys-tix.com",
-        api: "https://dev.doorway.sys-tix.com/api/v1/",
+        // slug: "besprintsypnye-chtenija",
+        // slug_event: "besprintsypnye-chtenija",
+        // host: "dev.doorway.sys-tix.com",
+        // api: "https://dev.doorway.sys-tix.com/api/v1/",
         yandex: "",
         mail_ru: "",
         title_text: " | Ленком",
@@ -72,6 +72,16 @@ let vue = new Vue({
         sold_modal_ids: [],
         sold_modal_tickets: [],
         cache_requests: new Map(),
+        orderName: "",
+        orderPhone: "",
+        orderEmail: "",
+        orderComment: "",
+        orderPayType: 2,
+        orderAgree: true,
+        orderNameError: false,
+        orderPhoneError: false,
+        orderEmailError: false,
+        orderAgreeError: false,
     },
     mounted: function() {
         this.touchCart();
@@ -618,7 +628,7 @@ let vue = new Vue({
             this.legend_range[3] = Math.floor(min_price + ((max_price - min_price) * .3)),
             this.legend_range[4] = Math.floor(min_price + ((max_price - min_price) * .4));
 
-            this.$forceUpdate();
+            // this.$forceUpdate();
         },
 
         legendToogle(index) {
@@ -818,51 +828,45 @@ let vue = new Vue({
             location.reload();
         },
         makeOrder() {
-            let name = document.querySelector('#order_form input[name="name"]').value,
-                phone = document.querySelector('#order_form input[name="phone"]').value,
-                email = document.querySelector('#order_form input[name="email"]').value,
-                comment = document.querySelector('#order_form textarea[name="comment"]').value,
-                pay_type = document.querySelector('#order_form input[name="pay_type"]').value,
-                agree = document.querySelector('#agree').checked,
-                error = false;
+            this.orderNameError
+                = this.orderPhoneError
+                = this.orderEmailError
+                = this.orderAgreeError
+                = false;
 
-            document.querySelectorAll(".error")
-                .forEach(function(el) {
-                    el.classList.remove("error");
-                });
-
-            if (!name) {
-                document.querySelector('#order_form input[name="name"]').parentElement.classList.add("error");
-                error = true;
+            if (!this.orderName) {
+                this.orderNameError = true;
             }
 
-            if (!phone) {
-                document.querySelector('#order_form input[name="phone"]').parentElement.classList.add("error");
-                error = true;
+            if (!this.orderPhone) {
+                this.orderPhoneError = true;
             } 
 
-            if (!email) {
-                document.querySelector('#order_form input[name="email"]').parentElement.classList.add("error");
-                error = true;
+            if (!this.orderEmail) {
+                this.orderEmailError = true;
             }
 
-            if (!agree) {
-                document.querySelector('#order_form input[name="agree"]').parentElement.classList.add("error");
-                error = true;
+            if (!this.orderAgree) {
+                this.orderAgreeError = true;
             }
 
-            if (!error) {
+            if (
+                !this.orderNameError
+                && !this.orderPhoneError 
+                && !this.orderEmailError 
+                && !this.orderAgreeError
+            ) {
                 this.order_loading = true;
 
                 const payment_link = this.tilda_widget_id ? "payment_info" : "payment_tilda";
 
                 axios.post(`${this.api}${payment_link}/send/`, {
                     host_name: this.host,
-                    name: name,
-                    phone: phone,
-                    email: email,
-                    comment: comment,
-                    pay_type: pay_type,
+                    name: this.orderName,
+                    phone: this.orderPhone,
+                    email: this.orderEmail,
+                    comment: this.orderComment,
+                    pay_type: this.orderPayType,
                     tickets: this.cart,
                 },{
                     headers: {
@@ -883,10 +887,10 @@ let vue = new Vue({
                                 amount: this.cart_summ,
                                 currency: 'RUB',
                                 invoiceId: resp.order_id,
-                                email: email,
+                                email: this.orderEmail,
                                 payer: { 
-                                    firstName: name,
-                                    phone: phone,
+                                    firstName: this.orderName,
+                                    phone: this.orderPhone,
                                 },
                                 data: {
                                     CloudPayments: {
@@ -900,8 +904,8 @@ let vue = new Vue({
                                                 }
                                             ],
                                             calculationPlace: this.host,
-                                            email: email,
-                                            phone: phone,
+                                            email: this.orderEmail,
+                                            phone: this.orderPhone,
                                             amounts: {
                                                 electronic: this.cart_summ
                                             }
@@ -1078,6 +1082,7 @@ let vue = new Vue({
                     this.list_tickets[ticket.ss]["count"] = this.list_tickets[ticket.ss]["count"] + 1 || 1;
 
                     this.list_tickets[ticket.ss][ticket.r]["status"] = false;
+                    this.list_tickets[ticket.ss][ticket.r]["title"] = ticket.r;
     
                     if (
                         !this.list_tickets[ticket.ss][ticket.r]["min_price"]
@@ -1105,8 +1110,6 @@ let vue = new Vue({
                     this.list_tickets[ticket.ss]["max_price"] = ticket.p;
                 }
             });
-
-            console.log(this.list_tickets)
 
             for (const property in this.list_tickets) {
                 for (const row in this.list_tickets[property]) {
