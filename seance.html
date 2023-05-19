@@ -179,73 +179,70 @@
             <div class="list__wrp">
               <div class="list__sector">
                 <template v-for="(sector, index) in list_tickets">
-                  <template>
-                    
-                    <div class="list__row list__row-sector">
-                      <div class="list__col list__col-sector">{{ sector.title }}</div>
-                      <div class="list__col list__col-count">{{ sector.count }}</div>
-                      <div class="list__col list__col-price">{{ sector.min_price }} - {{ sector.max_price }} руб</div>
-                      <div
-                        class="list__col list__col-open"
-                        :class="{ active: sector.status }"
-                        @click="toggleSector(index)"
-                      >Билеты</div>
-                    </div>
-                    <div class="list__rows" :class="{ active: sector.status }">
-                      <template v-if="sector.ml">
-                        <div v-for="m_row in sector" class="list__row list__row-seat">
-                          <div class="list__col list__col-arrow">↳</div>
-                          <div class="list__col list__col-count">{{ m_row.qty }}</div>
-                          <div class="list__col list__col-price">{{ m_row.p }} руб</div>
-                          <div class="list__col list__col-buy">
-                            <div class="m_count">
-                              <div
-                                class="m_count_b m_count_b-m"
-                                :class="{ active: m_row.count > 0 }"
-                                @click="m_ticket(m_row, false)"
-                              >-</div>
-                              <div class="m_count_number m_count_number-list">{{ m_row.count }}</div>
-                              <div
-                                class="m_count_b"
-                                :class="{ active: m_row.count < m_row.qty }"
-                                @click="m_ticket(m_row, true)"
-                              >+</div>
-                            </div>
+                  <div class="list__row list__row-sector">
+                    <div class="list__col list__col-sector">{{ sector.title }}</div>
+                    <div class="list__col list__col-count">{{ sector.count }}</div>
+                    <div class="list__col list__col-price">{{ sector.min_price }} - {{ sector.max_price }} руб</div>
+                    <div
+                      class="list__col list__col-open"
+                      :class="{ active: sector.status }"
+                      @click="toggleSector(index)"
+                    >Билеты</div>
+                  </div>
+                  <div class="list__rows" :class="{ active: sector.status }">
+                    <template v-if="sector.ml">
+                      <div v-for="m_row in sector" class="list__row list__row-seat">
+                        <div class="list__col list__col-arrow">↳</div>
+                        <div class="list__col list__col-count">{{ m_row.qty }}</div>
+                        <div class="list__col list__col-price">{{ m_row.p }} руб</div>
+                        <div class="list__col list__col-buy">
+                          <div class="m_count">
+                            <div
+                              class="m_count_b m_count_b-m"
+                              :class="{ active: m_row.count > 0 }"
+                              @click="m_ticket(m_row, false)"
+                            >-</div>
+                            <div class="m_count_number m_count_number-list">{{ m_row.count }}</div>
+                            <div
+                              class="m_count_b"
+                              :class="{ active: m_row.count < m_row.qty }"
+                              @click="m_ticket(m_row, true)"
+                            >+</div>
                           </div>
                         </div>
-                      </template>
-                      <template v-else>
-                        <template v-for="(row, id) in sector">
-                          <template v-if="row && row.length">
-                            <div class="list__row list__row-row">
-                              <div class="list__col list__col-sector">Ряд {{ row[0].r }}</div>
-                              <div class="list__col list__col-count">{{ row.length }}</div>
-                              <div class="list__col list__col-price">от {{ row.min_price }} руб</div>
-                              <div class="list__col list__col-open" @click="toggleRow(index, id)">Места</div>
-                            </div>
-                            <div class="list__places" :class="{ active: row.status }">
-                              <div v-for="place in row" class="list__row list__row-seat">
-                                <div class="list__col list__col-arrow">↳</div>
-                                <div class="list__col list__col-count">Место {{ place.s }}</div>
-                                <div class="list__col list__col-price">{{ place.p }} руб</div>
-                                <div class="list__col list__col-buy">
-                                  <div
-                                    class="list__input"
-                                    :class="{ active: cart.findIndex(obj => obj.id === place.id) >= 0 }"
-                                    :data-id="place.id"
-                                    :data-sn="place.sn"
-                                    :data-r="place.r"
-                                    :data-s="place.s"
-                                    :data-p="place.p"
-                                  ></div>
-                                </div>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <template v-for="(row, id) in sector">
+                        <template v-if="row && row.length">
+                          <div class="list__row list__row-row">
+                            <div class="list__col list__col-sector">Ряд {{ row[0].r }}</div>
+                            <div class="list__col list__col-count">{{ row.length }}</div>
+                            <div class="list__col list__col-price">от {{ row.min_price }} руб</div>
+                            <div class="list__col list__col-open" @click="toggleRow(index, id)">Места</div>
+                          </div>
+                          <div class="list__places" :class="{ active: row.status }">
+                            <div v-for="place in row" class="list__row list__row-seat">
+                              <div class="list__col list__col-arrow">↳</div>
+                              <div class="list__col list__col-count">Место {{ place.s }}</div>
+                              <div class="list__col list__col-price">{{ place.p }} руб</div>
+                              <div class="list__col list__col-buy">
+                                <div
+                                  class="list__input"
+                                  :class="{ active: cart.findIndex(obj => obj.id === place.id) >= 0 }"
+                                  :data-id="place.id"
+                                  :data-sn="place.sn"
+                                  :data-r="place.r"
+                                  :data-s="place.s"
+                                  :data-p="place.p"
+                                ></div>
                               </div>
                             </div>
-                          </template>
+                          </div>
                         </template>
                       </template>
-                    </div>
-                  </template>
+                    </template>
+                  </div>
                 </template>
               </div>
             </div>
@@ -308,8 +305,9 @@
   </section>
 <!-- 
   <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" integrity="sha512-PwQ5+jgXxxprNGc80ycHE3spgj6TuDieHe/yTkbEJ+U5aol7dTupi/4VbwHHzlQVW77Vb0GLOIsiYigHgC5vcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js" integrity="sha512-wGKmIfDWUJSUvxUfUayQPJj7ADCD60La3up0VCbq+MTFcOUQ2hlH2McnYFafHgLTsOrGwOdiHKX4p1v0BerCyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js" integrity="sha512-PwQ5+jgXxxprNGc80ycHE3spgj6TuDieHe/yTkbEJ+U5aol7dTupi/4VbwHHzlQVW77Vb0GLOIsiYigHgC5vcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.5.1/vue-resource.min.js" integrity="sha512-wGKmIfDWUJSUvxUfUayQPJj7ADCD60La3up0VCbq+MTFcOUQ2hlH2McnYFafHgLTsOrGwOdiHKX4p1v0BerCyQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js" integrity="sha512-uMtXmF28A2Ab/JJO2t/vYhlaa/3ahUOgj1Zf27M5rOo8/+fcTUVH0/E0ll68njmjrLqOBjXM3V9NiPFL5ywWPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
