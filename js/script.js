@@ -1,6 +1,6 @@
-let vue = new Vue({
+new Vue({
     el: '#vue',
-    data: {
+    data: () => { return {
         // slug: "lenkom",
         // host: "lencom.me",
         // api: "https://lencom.me/api/v1/",
@@ -72,7 +72,7 @@ let vue = new Vue({
         sold_modal_ids: [],
         sold_modal_tickets: [],
         cache_requests: new Map(),
-    },
+    }},
     mounted: function() {
         this.touchCart();
 
@@ -286,7 +286,7 @@ let vue = new Vue({
         },
 
         initScheme() {
-            window.map = L.map('hall', {
+            const map = L.map('hall', {
                 crs: L.CRS.Simple,
                 zoom: 1,
                 minZoom: 0,
@@ -345,7 +345,7 @@ let vue = new Vue({
 
                     this.m_tickets.push(ticket);
 
-                    let sector = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
+                    let sector = document.querySelector("body").querySelector(`#hall #${ticket.ss}`),
                         sector_wrp = document.querySelector("body").querySelector(`#hall #${ticket.ss}`);
 
                     if (sector) {
@@ -400,7 +400,7 @@ let vue = new Vue({
                     }
                     
                 } else if (ticket.sn && ticket.scid && ticket.r && +ticket.r && !!ticket.r.replace(' ', '') && ticket.s !== "-" && +ticket.s) {
-                    let place = document.querySelector("body").querySelector(`#hall #${ticket.ss} g:nth-child(${ticket.r}) path:nth-child(${parseInt(ticket.s)})`);
+                    let place = document.querySelector("body").querySelector(`#hall #${ticket.ss} g:nth-child(${ticket.r}) path:nth-child(${parseInt(ticket.s)})`),
                         seat_class = "act",
                         circle = false,
                         color = "color_1";
@@ -476,7 +476,7 @@ let vue = new Vue({
             document.querySelector("body")
                 .querySelectorAll("path.act, circle.act")
                 .forEach(function(el) {
-                    el.addEventListener("mouseenter", function(event){                    
+                    el.addEventListener("mouseenter", function(){                    
                         if (this.dataset.s != -1) {
                             self.hoveredNumber(
                                 this.dataset.id,
@@ -582,7 +582,7 @@ let vue = new Vue({
             document.querySelector("body")
                 .querySelectorAll("svg .act, svg .active_sector")
                 .forEach(function(el) {
-                    el.addEventListener("mouseleave", function(event){
+                    el.addEventListener("mouseleave", function(){
                         if (this.classList.contains("active_sector")) {
                             this.classList.remove('hovered');
                         } else {
@@ -596,7 +596,7 @@ let vue = new Vue({
             document.querySelector("body")
                 .querySelectorAll(".active_sector")
                 .forEach(function(el) {
-                    el.addEventListener("click", function(event){
+                    el.addEventListener("click", function(){
                         if (this.dataset.ss !== undefined) {
                             self.m_sector = this.dataset.ss;
                         } else {
@@ -607,8 +607,8 @@ let vue = new Vue({
         },
 
         makeLegend() {
-            let tickets = this.seance_data.tickets.sort((a,b) => a.p - b.p);
-                length = tickets.length
+            let tickets = this.seance_data.tickets.sort((a,b) => a.p - b.p),
+                length = tickets.length,
                 min_price = tickets[0].p,
                 max_price = tickets[length - 1].p;
 
