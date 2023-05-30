@@ -1,81 +1,79 @@
 const { createApp } = Vue;
 
 createApp({
-    data: () => {
-        return {
-            // slug: "lenkom",
-            // host: "lencom.me",
-            // api: "https://lencom.me/api/v1/",
-            // slug: "mht_im_a_p_chehova",
-            // host: "mxat-theatre.com",
-            // api: "https://mxat-theatre.com/api/v1/",
-            slug: "krokus_siti_holl",
-            host: "crocus-holl.com",
-            api: "https://crocus-holl.com/api/v1/",
-            // slug: "radisson_royal",
-            // host: "radissontickets.com",
-            // api: "https://radissontickets.com/api/v1/",
-            // slug: "moskovskij_planetarij",
-            // host: "planetariym.com",
-            // api: "https://planetariym.com/api/v1/",
-            // slug: "besprintsypnye-chtenija",
-            // slug_event: "besprintsypnye-chtenija",
-            // host: "dev.doorway.sys-tix.com",
-            // api: "https://dev.doorway.sys-tix.com/api/v1/",
-            yandex: "",
-            mail_ru: "",
-            title_text: " | Ленком",
-            map_view: "scheme",
-            info_text: "",
-            info_color: "#4db483",
-            tilda_widget_id: "pk_e40712c97f8fbd9f2c223a2c20b51",
-            tilda_widget_deescription: "Описание к оплате",
-            show_map_switch: true,
+    data: () => { return {
+        // slug: "lenkom",
+        // host: "lencom.me",
+        // api: "https://lencom.me/api/v1/",
+        // slug: "mht_im_a_p_chehova",
+        // host: "mxat-theatre.com",
+        // api: "https://mxat-theatre.com/api/v1/",
+        slug: "krokus_siti_holl",
+        host: "crocus-holl.com",
+        api: "https://crocus-holl.com/api/v1/",
+        // slug: "radisson_royal",
+        // host: "radissontickets.com",
+        // api: "https://radissontickets.com/api/v1/",
+        // slug: "moskovskij_planetarij",
+        // host: "planetariym.com",
+        // api: "https://planetariym.com/api/v1/",
+        // slug: "besprintsypnye-chtenija",
+        // slug_event: "besprintsypnye-chtenija",
+        // host: "dev.doorway.sys-tix.com",
+        // api: "https://dev.doorway.sys-tix.com/api/v1/",
+        yandex: "",
+        mail_ru: "",
+        title_text: " | Ленком",
+        map_view: "scheme",
+        info_text: "",
+        info_color: "#4db483",
+        tilda_widget_id: "pk_e40712c97f8fbd9f2c223a2c20b51",
+        tilda_widget_deescription: "Описание к оплате",
+        show_map_switch: true,
 
-            loading: false,
-            seances: [],
-            months: [],
-            activeMonth: "",
-            navMonth: "",
-            nextMonth: "",
-            staticMonths: [ 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь' ],
-            staticMonthsDat: [ 'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря' ],
-            week: [ 'Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота' ],
-            week_short: [ 'Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб' ],
-            event_id: window.location.hash ? window.location.hash.substring(1) : "",
-            seance_event_id: window.location.hash ? window.location.hash.substring(1).split('&')[0] : "",
-            seance_seance_id: window.location.hash ? window.location.hash.substring(1).split('&')[1] : "",
-            event_data: [],
-            seance_data: [],
-            seance_list: false,
-            hall_map: "",
-            cart: [],
-            cart_summ: 0,
-            cart_count: 0,
-            window_is_sector: false,
-            window_sector: "",
-            window_row: "",
-            window_seat: "",
-            window_price: "",
-            mobile_cart: true,
-            order_loading: false,
-            list_tickets: {},
-            list_map: "",
-            show_list_map: false,
-            m_tickets: [],
-            m_sector: "",
-            legend_range: [],
-            page_content: [],
-            page_text: "",
-            text_page: document.getElementById('vue').dataset.text_page ? document.getElementById('vue').dataset.text_page : "",
-            iframe: "",
-            sold_modal_staus: false,
-            sold_modal_link: "/",
-            sold_modal_ids: [],
-            sold_modal_tickets: [],
-            cache_requests: new Map(),
-        }
-    },
+        loading: false,
+        seances: [],
+        months: [],
+        activeMonth: "",
+        navMonth: "",
+        nextMonth: "",
+        staticMonths: [ 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь' ],
+        staticMonthsDat: [ 'Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря' ],
+        week: [ 'Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота' ],
+        week_short: [ 'Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб' ],
+        event_id: window.location.hash ? window.location.hash.substring(1) : "",
+        seance_event_id: window.location.hash ? window.location.hash.substring(1).split('&')[0] : "",
+        seance_seance_id: window.location.hash ? window.location.hash.substring(1).split('&')[1] : "",
+        event_data: [],
+        seance_data: [],
+        seance_list: false,
+        hall_map: "",
+        cart: [],
+        cart_summ: 0,
+        cart_count: 0,
+        window_is_sector: false,
+        window_sector: "",
+        window_row: "",
+        window_seat: "",
+        window_price: "",
+        mobile_cart: true,
+        order_loading: false,
+        list_tickets: {},
+        list_map: "",
+        show_list_map: false,
+        m_tickets: [],
+        m_sector: "",
+        legend_range: [],
+        page_content: [],
+        page_text: "",
+        text_page: document.getElementById('vue').dataset.text_page ? document.getElementById('vue').dataset.text_page : "",
+        iframe: "",
+        sold_modal_staus: false,
+        sold_modal_link: "/",
+        sold_modal_ids: [],
+        sold_modal_tickets: [],
+        cache_requests: new Map(),
+    } },
     mounted: function() {
         this.touchCart();
 
@@ -183,6 +181,7 @@ createApp({
 
             return this.cache_requests.get(row);  
         },
+
         async takeSeances(month, append) {
             let searchParrams = {
                 host_name: this.host
@@ -763,6 +762,7 @@ createApp({
                 document.querySelector("#hall svg").appendChild(check);
             }
         },
+
         touchCart() {
             this.cart = [];
 
@@ -778,6 +778,7 @@ createApp({
                 this.cart_count += ticket.count;
             })
         },
+
         clearCart() {
             localStorage.setItem("cart", "");
 
@@ -794,6 +795,7 @@ createApp({
 
             this.touchCart();
         },
+
         tellPos(p) {
             const height = document.querySelector(".seance_window").offsetHeight,
                 width = document.querySelector(".seance_window").offsetWidth;
@@ -808,6 +810,7 @@ createApp({
             document.querySelector(".seance_window").style.left = p.clientX - width / 2;
             document.querySelector(".seance_window").style.top = p.clientY - height - 20;
         },
+
         delTicket(id) {
             const index = this.cart.findIndex(obj => obj.id === id);
 
@@ -816,10 +819,12 @@ createApp({
 
             this.touchCart();
         },
+
         changeUrl(link) {
             window.location.href = link;
             location.reload();
         },
+
         makeOrder() {
             let name = document.querySelector('#order_form input[name="name"]').value,
                 phone = document.querySelector('#order_form input[name="phone"]').value,
@@ -954,7 +959,8 @@ createApp({
                 });
             }
         },
-        m_ticket(ticket, plus) {
+
+        mTicket(ticket, plus) {
             let id = ticket.id,
                 sector = ticket.sn,
                 row = ticket.r,
@@ -1033,6 +1039,7 @@ createApp({
 
             this.touchCart();
         },
+
         async takeText() {
             const response = await axios.get(`${this.api}page_tilda/`, {
                 params: {
@@ -1061,9 +1068,11 @@ createApp({
                 this.page_text = this.page_content.contact_text;
             }
         },
+
         closeSoldModal() {
             this.sold_modal_staus = false;
         },
+
         placeList() {
             this.seance_data.tickets.forEach((ticket) => {  
                 if (ticket.ml) {
@@ -1109,8 +1118,6 @@ createApp({
                 }
             });
 
-            console.log(this.list_tickets)
-
             for (const property in this.list_tickets) {
                 for (const row in this.list_tickets[property]) {
                     if (
@@ -1122,6 +1129,7 @@ createApp({
                 }
             }
         },
+
         soldModalShow() {
             this.sold_modal_ids.forEach((id) => { 
                 this.cart.forEach((ticket) => { 
@@ -1135,12 +1143,15 @@ createApp({
 
             this.sold_modal_staus = true;
         },
+
         toggleMapView(view) {
             this.map_view = view;
         },
+
         toggleSector(index) {
             this.list_tickets[index].status = !this.list_tickets[index].status;
         },
+
         toggleRow(index, id) {
             this.list_tickets[index][id].status = !this.list_tickets[index][id].status;
         },

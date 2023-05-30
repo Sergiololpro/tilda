@@ -151,13 +151,13 @@
                       <div
                         class="m_count_b m_count_b-m"
                         :class="{ active: ticket.count > 0 }"
-                        @click="m_ticket(ticket, false)"
+                        @click="mTicket(ticket, false)"
                       >-</div>
                       <div class="m_count_number">{{ ticket.count }}</div>
                       <div
                         class="m_count_b"
                         :class="{ active: ticket.count < ticket.qty }"
-                        @click="m_ticket(ticket, true)"
+                        @click="mTicket(ticket, true)"
                       >+</div>
                     </div>
                   </div>
@@ -200,13 +200,13 @@
                             <div
                               class="m_count_b m_count_b-m"
                               :class="{ active: m_row.count > 0 }"
-                              @click="m_ticket(m_row, false)"
+                              @click="mTicket(m_row, false)"
                             >-</div>
                             <div class="m_count_number m_count_number-list">{{ m_row.count }}</div>
                             <div
                               class="m_count_b"
                               :class="{ active: m_row.count < m_row.qty }"
-                              @click="m_ticket(m_row, true)"
+                              @click="mTicket(m_row, true)"
                             >+</div>
                           </div>
                         </div>
