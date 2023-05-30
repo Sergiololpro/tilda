@@ -867,7 +867,7 @@ new Vue({
                 },{
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                      }
+                    }
                 }).then((response) => {
                     const resp = response.data;
 
