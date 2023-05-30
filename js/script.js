@@ -95,7 +95,7 @@ createApp({
     },
     computed: {
         seancesGroups: function() {
-            if (this.seances.length == 0) return {};
+            if (this.seances.length === 0) return {};
 
             return this.seances.reduce((grouped, seance) => {
                 grouped[seance.date] = grouped[seance.date] || [];
@@ -104,7 +104,7 @@ createApp({
             }, Object.create(null));
         },
         eventGroups: function() {
-            if (this.event_data == 0) return {};
+            if (this.event_data === 0) return {};
 
             return this.event_data.seances.reduce((grouped, seance) => {
                 grouped[seance.starts_at] = grouped[seance.starts_at] || [];
@@ -651,8 +651,8 @@ createApp({
                 });
 
             if (
-                document.querySelectorAll(".legend__el.active").length == 0
-                || document.querySelectorAll(".legend__el.active").length == 5
+                document.querySelectorAll(".legend__el.active").length === 0
+                || document.querySelectorAll(".legend__el.active").length === 5
             ) {
                 document.querySelectorAll(".legend__el")
                     .forEach(function(el) {
@@ -875,7 +875,7 @@ createApp({
                 },{
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                      }
+                    }
                 }).then((response) => {
                     const resp = response.data;
 
@@ -982,7 +982,7 @@ createApp({
                     this.cart[index].count = count;
                     this.m_tickets[m_index].count = count;
                 } else {
-                    if (count == 1) {
+                    if (count === 1) {
                         count = 0;
                         this.cart.splice(index, 1);
                         this.m_tickets[m_index].count = count;
@@ -1052,19 +1052,19 @@ createApp({
 
             console.log(this.page_content)
 
-            if (this.text_page == "about") {
+            if (this.text_page === "about") {
                 this.page_text = this.page_content.about_text;
-            } else if (this.text_page == "guarantee") {
+            } else if (this.text_page === "guarantee") {
                 this.page_text = this.page_content.guarantee_text;
-            } else if (this.text_page == "delivery") {
+            } else if (this.text_page === "delivery") {
                 this.page_text = this.page_content.delivery_text;
-            } else if (this.text_page == "offer") {
+            } else if (this.text_page === "offer") {
                 this.page_text = this.page_content.offer_text;
-            } else if (this.text_page == "payment") {
+            } else if (this.text_page === "payment") {
                 this.page_text = this.page_content.payment_text;
-            } else if (this.text_page == "confidential") {
+            } else if (this.text_page === "confidential") {
                 this.page_text = this.page_content.text;
-            } else if (this.text_page == "contact") {
+            } else if (this.text_page === "contact") {
                 this.page_text = this.page_content.contact_text;
             }
         },
@@ -1133,7 +1133,7 @@ createApp({
         soldModalShow() {
             this.sold_modal_ids.forEach((id) => { 
                 this.cart.forEach((ticket) => { 
-                    if (id == ticket.id) {
+                    if (id === ticket.id) {
                         this.sold_modal_tickets.push(ticket.sector + ", ряд " + ticket.row + ", место " + ticket.seat);
 
                         this.sold_modal_link = "/seance#" + ticket.event_id + "&" + ticket.seance_id;
